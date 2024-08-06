@@ -1,20 +1,9 @@
-import Login from "@/components/auth/login";
-import Register from "@/components/auth/register";
+import ChatLayout from "./chat-layout";
+import FormLayout from "./form-layout";
 
 function RootLayout() {
-  const user = false;
-  return (
-    <div>
-      {user ? (
-        "welcome"
-      ) : (
-        <div className="border border-red-500 h-screen place-content-center mx-40 grid grid-cols-2 gap-4">
-          <Login />
-          <Register />
-        </div>
-      )}
-    </div>
-  );
+  const user = true;
+  return <div>{user ? <ChatLayout /> : <FormLayout />}</div>;
 }
 
 export default RootLayout;

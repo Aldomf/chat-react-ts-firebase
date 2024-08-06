@@ -75,7 +75,7 @@ function Login() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Register</Button>
+            <Button type="submit">Login</Button>
           </form>
         </Form>
       </CardContent>
