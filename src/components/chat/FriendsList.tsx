@@ -6,10 +6,12 @@ import {
   } from "@/components/ui/card";
   
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  import { ScrollArea } from "@/components/ui/scroll-area"
+
   
   function FriendsList() {
     return (
-      <div className="h-[calc(100vh-130px)] overflow-y-auto">
+      <ScrollArea className="h-[calc(100vh-130px)] overflow-y-auto">
         {Array.from({ length: 15 }).map((_, index) => (
           <Card
             key={index}
@@ -32,7 +34,7 @@ import {
             </div>
           </Card>
         ))}
-      </div>
+      </ScrollArea>
     );
   }
   

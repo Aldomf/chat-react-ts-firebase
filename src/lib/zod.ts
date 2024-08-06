@@ -26,3 +26,7 @@ export const registerFormSchema = z
     message: "Passwords must match",
     path: ['confirmPassword'], // This ensures the error message appears on the correct field
   });
+
+  export const searchFriendSchema = z.object({
+    username: z.string().min(1, "Username must be at least 1 characters"),
+  });
