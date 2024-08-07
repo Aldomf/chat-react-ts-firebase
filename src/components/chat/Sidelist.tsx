@@ -4,7 +4,7 @@ import SearchContact from "./SearchContact"
 
 function Sidelist() {
   return (
-    <div className="border border-blue-500">
+    <div className="">
         <FirstSectionSidelist/>
         <SearchContact/>
         <FriendsList/>

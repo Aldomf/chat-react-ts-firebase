@@ -28,7 +28,7 @@ import {
                 <CardTitle className="text-lg text-[#64748B]">Aldo Miralles</CardTitle>
               </CardHeader>
               <CardContent className="flex justify-between items-center py-0 px-0">
-                <p className="text-xs w-[80%] text-[#A6A3B8] font-medium">Card Content</p>
+                <p className="text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2">Card Content Lorem ipsum, dolor sit amet consectetur adipisicing elit. Commodi, ea inventore quam tempora corporis perferendis provident nam vel dolores enim tempore reprehenderit ex eos minima nihil quisquam animi repellat omnis.</p>
                 <p className="text-[10px] w-[20%] text-[#A6A3B8]">45 min</p>
               </CardContent>
             </div>

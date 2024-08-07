@@ -4,7 +4,7 @@ import Sidelist from "@/components/chat/Sidelist";
 
 function ChatLayout() {
   return (
-    <div className="md:grid md:grid-cols-[1.2fr_3fr_1fr] h-screen border border-red-600">
+    <div className="md:grid md:grid-cols-[1.2fr_3fr_1fr] h-screen">
       <Sidelist />
       <Chat />
       <Profile />
