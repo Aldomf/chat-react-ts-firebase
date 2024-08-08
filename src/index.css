@@ -67,3 +67,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Apply styles directly to the scrollable element */
+.scrollable {
+  overflow-y: scroll; /* Enable vertical scrolling */
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Custom scrollbar styles for WebKit browsers */
+.scrollable::-webkit-scrollbar {
+  width: 8px; /* Adjust scrollbar width as needed */
+  opacity: 0; /* Hide scrollbar initially */
+  transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0); /* Transparent scrollbar by default */
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent; /* Optional: hide the scrollbar track */
+}
+
+/* Show scrollbar on hover */
+.scrollable:hover::-webkit-scrollbar {
+  opacity: 1; /* Show scrollbar on hover */
+}
+
+.scrollable:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2); /* Lighter color when hovered */
+}
