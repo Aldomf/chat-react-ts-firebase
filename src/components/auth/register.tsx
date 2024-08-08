@@ -20,8 +20,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from "reactfire";
 
 function Register() {
+  const auth = useAuth();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
@@ -35,9 +39,27 @@ function Register() {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof registerFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof registerFormSchema>) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      console.log(userCredential);
+
+    } catch (error) {
+      if (error instanceof Error) {
+        // Handle specific Firebase error messages
+        if (error.message.includes("auth/email-already-in-use")) {
+          form.setError("email", { type: "manual", message: "Email already in use" });
+        } else if (error.message.includes("auth/weak-password")) {
+          form.setError("password", { type: "manual", message: "Password should be at least 6 characters" });
+        } else {
+          // Handle other errors
+          form.setError("root", { type: "manual", message: "An unexpected error occurred. Please try again." });
+        }
+        console.error("Error creating user:", error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
     console.log(values);
   }
 
