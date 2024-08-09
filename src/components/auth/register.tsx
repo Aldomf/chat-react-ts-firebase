@@ -20,11 +20,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { useAuth } from "reactfire";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { useAuth, useStorage } from "reactfire";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 function Register() {
   const auth = useAuth();
+  const storage = useStorage();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -41,19 +43,49 @@ function Register() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof registerFormSchema>) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      console.log(userCredential);
+      // create user
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
 
+      // upload photo
+      const storageRef = ref(storage, `users/${userCredential.user.uid}`);
+      await uploadBytes(storageRef, values.photoURL);
+
+      // download photo
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // update profile
+      await updateProfile(userCredential.user, {
+        displayName: values.username,
+        photoURL: downloadURL,
+      });
+
+      // reload user
+      await auth.currentUser?.reload();
+
+      console.log(userCredential);
     } catch (error) {
       if (error instanceof Error) {
         // Handle specific Firebase error messages
         if (error.message.includes("auth/email-already-in-use")) {
-          form.setError("email", { type: "manual", message: "Email already in use" });
+          form.setError("email", {
+            type: "manual",
+            message: "Email already in use",
+          });
         } else if (error.message.includes("auth/weak-password")) {
-          form.setError("password", { type: "manual", message: "Password should be at least 6 characters" });
+          form.setError("password", {
+            type: "manual",
+            message: "Password should be at least 6 characters",
+          });
         } else {
           // Handle other errors
-          form.setError("root", { type: "manual", message: "An unexpected error occurred. Please try again." });
+          form.setError("root", {
+            type: "manual",
+            message: "An unexpected error occurred. Please try again.",
+          });
         }
         console.error("Error creating user:", error.message);
       } else {

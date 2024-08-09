@@ -20,8 +20,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "reactfire";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
+  const auth = useAuth();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -32,10 +36,32 @@ function Login() {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      console.log(values);
+    } catch (error) {
+      if (error instanceof Error) {
+        // Handle specific Firebase error messages
+        if (error.message.includes("auth/invalid-login-credentials")) {
+          form.setError("email", {
+            type: "manual",
+            message: "Invalid credentials",
+          });
+          form.setError("password", {
+            type: "manual",
+            message: "Invalid credentials",
+          });
+        } else {
+          // Handle other errors
+          form.setError("root", {
+            type: "manual",
+            message: "An unexpected error occurred. Please try again.",
+          });
+        }
+        console.error("Error creating user:", error.message);
+      }
+    }
   }
 
   return (

@@ -1,8 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "../ui/button";
+import { useAuth, useUser } from "reactfire";
 
 function Profile() {
+  const auth = useAuth()
+  const { data: user } = useUser();
+
+  const handleClickSignOut = async () => {
+    await auth.signOut();
+  };
+
+  console.log({'hola': auth});
+
   return (
-    <div className="relative">
+    <div className="relative flex flex-col items-center">
       <div className="relative overflow-hidden w-full h-44">
         <img
           src="/profile-dog.jpg"
@@ -12,12 +23,17 @@ function Profile() {
       </div>
       <div className="flex flex-col items-center -mt-7">
         <Avatar className="rounded-md h-16 w-16 border-2 border-white">
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src={user?.photoURL || ""} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <h3 className="mt-2 text-[#6E748B] text-xl font-semibold">Aldo Miralles</h3>
+        <h3 className="mt-2 text-[#6E748B] text-xl font-semibold">
+          {user?.displayName}
+        </h3>
         <p className="mt-2 text-[#A9A9B8] text-xs font-semibold">Active now</p>
       </div>
+      <Button className="mt-4 w-[80%]" onClick={handleClickSignOut}>
+        Log out
+      </Button>
     </div>
   );
 }
