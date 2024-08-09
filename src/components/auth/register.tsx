@@ -21,12 +21,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useAuth, useStorage } from "reactfire";
+import { useAuth, useFirestore, useStorage } from "reactfire";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { UserDB } from "@/schemas/firestore-schema";
 
 function Register() {
   const auth = useAuth();
   const storage = useStorage();
+  const db = useFirestore();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -66,7 +69,20 @@ function Register() {
       // reload user
       await auth.currentUser?.reload();
 
-      console.log(userCredential);
+      // set the data to the firebase storage
+      const userDB: UserDB = {
+        diesplayName: values.username,
+        email: values.email,
+        photoURL: downloadURL,
+        uid: userCredential.user.uid,
+        friends: [],
+        rooms: [],
+      }
+
+      const userRef = doc(db, "users", userCredential.user.uid);
+
+      await setDoc( userRef, userDB);
+
     } catch (error) {
       if (error instanceof Error) {
         // Handle specific Firebase error messages
