@@ -9,9 +9,7 @@ function Profile() {
   const handleClickSignOut = async () => {
     await auth.signOut();
   };
-
-  console.log({'hola': auth});
-
+  
   return (
     <div className="relative flex flex-col items-center">
       <div className="relative overflow-hidden w-full h-44">

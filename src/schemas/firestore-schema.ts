@@ -13,7 +13,7 @@ export interface Message {
 
 // user schema
 export interface UserDB {
-  diesplayName: string;
+  displayName: string;
   email: string;
   photoURL: string;
   uid: string;

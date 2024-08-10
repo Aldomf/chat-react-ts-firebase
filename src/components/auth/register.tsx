@@ -71,7 +71,7 @@ function Register() {
 
       // set the data to the firebase storage
       const userDB: UserDB = {
-        diesplayName: values.username,
+        displayName: values.username,
         email: values.email,
         photoURL: downloadURL,
         uid: userCredential.user.uid,
