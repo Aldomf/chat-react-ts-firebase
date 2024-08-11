@@ -6,6 +6,7 @@ function Profile() {
   const auth = useAuth()
   const { data: user } = useUser();
 
+
   const handleClickSignOut = async () => {
     await auth.signOut();
   };

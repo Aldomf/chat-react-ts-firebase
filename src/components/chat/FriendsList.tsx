@@ -6,17 +6,21 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { UserRoom } from "@/schemas/firestore-schema";
+import { useChatStore } from "@/store/chat-store";
 
 interface Friend {
   uid: string;
   displayName: string;
   photoURL: string;
   lastMessage: string;
+  roomid: string;
 }
 
 function FriendsList() {
   const db = useFirestore();
   const auth = useAuth();
+
+  const { setFriend } = useChatStore();
 
   const [friends, setFriends] = useState<Friend[]>([]);
 
@@ -35,11 +39,16 @@ function FriendsList() {
 
           const data = friend.data();
 
+          const room = document.data()?.rooms.find((room: UserRoom) => room.friendId === friend.id);
+
+          console.log(room?.lastMessage)
+
           return {
             uid: data.uid,
             displayName: data.displayName,
             photoURL: data.photoURL,
-            lastMessage: data.rooms[0].lastMessage,
+            lastMessage: room?.lastMessage,
+            roomid: room?.roomid,
           };
         });
 
@@ -57,6 +66,7 @@ function FriendsList() {
         <Card
           key={index}
           className="flex py-2 rounded-none hover:bg-[#F1F5F9] cursor-pointer border-none shadow-none"
+          onClick={() => setFriend(friend)}
         >
           <div className="flex items-center justify-center py-0 w-[35%]">
             <Avatar className="rounded-md w-[60%] h-full">

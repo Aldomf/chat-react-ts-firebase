@@ -22,9 +22,11 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "reactfire";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useChatStore } from "@/store/chat-store";
 
 function Login() {
   const auth = useAuth();
+  const { resetFriend } = useChatStore();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -39,7 +41,7 @@ function Login() {
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      console.log(values);
+      resetFriend();
     } catch (error) {
       if (error instanceof Error) {
         // Handle specific Firebase error messages

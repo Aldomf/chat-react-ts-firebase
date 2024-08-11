@@ -4,8 +4,16 @@ import { Input } from "../ui/input";
 import { FaFaceSmile } from "react-icons/fa6";
 import { IoIosSend } from "react-icons/io";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { useAuth, useFirestore } from "reactfire";
+import { useChatStore } from "@/store/chat-store";
+import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { Message, UserRoom } from "@/schemas/firestore-schema";
 
 function ChatInput() {
+  const db = useFirestore();
+  const auth = useAuth();
+  const { friend } = useChatStore();
+
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
@@ -17,10 +25,58 @@ function ChatInput() {
     setInputValue((prevValue) => prevValue + emoji);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (inputValue.trim()) {
-      console.log("Message sent:", inputValue); // Replace with actual send function
-      setInputValue(""); // Clear the input field after sending the message
+      try {
+        const roomRef = doc(db, "rooms", friend!.roomid);
+        const messages: Message = {
+          message: inputValue,
+          timestamp: new Date().toISOString(),
+          uid: auth.currentUser!.uid,
+        };
+
+        await updateDoc(roomRef, {
+          messages: arrayUnion(messages),
+        });
+
+        //update last message
+        const userRef = doc(db, "users", auth.currentUser!.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const rooms = userData.rooms || [];
+      
+          // Find the room that matches the friendId
+          const roomToUpdate = rooms.find((room: UserRoom) => room.friendId === friend?.uid);
+      
+          if (roomToUpdate) {
+            // Remove the old room entry
+            await updateDoc(userRef, {
+              rooms: arrayRemove(roomToUpdate),
+            });
+      
+            // Update the lastMessage and timestamp, then add the updated room back
+            roomToUpdate.lastMessage = inputValue;
+            roomToUpdate.timestamp = new Date().toISOString();
+      
+            await updateDoc(userRef, {
+              rooms: arrayUnion(roomToUpdate),
+            });
+          }
+        }
+
+        await updateDoc(userRef, {
+          rooms: arrayUnion({
+            timestamp: new Date().toISOString(),
+            lastMessage: inputValue,
+          }),
+        });
+
+        setInputValue(""); // Clear the input field after sending the message
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 

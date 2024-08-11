@@ -19,7 +19,7 @@ function Message({ message, date, isCurrentUser, photoUrl }: MessageProps) {
     >
       {!isCurrentUser && (
         <img
-          src={photoUrl}
+          src={photoUrl || ""}
           alt="chat-messages"
           className="w-8 h-8 rounded-full mr-2"
         />
