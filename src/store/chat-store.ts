@@ -6,6 +6,7 @@ interface Friend {
   lastMessage: string;
   roomid: string;
   uid: string;
+  timestamp: string;
 }
 
 type Store = {

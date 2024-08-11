@@ -7,6 +7,7 @@ import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { UserRoom } from "@/schemas/firestore-schema";
 import { useChatStore } from "@/store/chat-store";
+import { format } from "date-fns";
 
 interface Friend {
   uid: string;
@@ -14,6 +15,7 @@ interface Friend {
   photoURL: string;
   lastMessage: string;
   roomid: string;
+  timestamp: string;
 }
 
 function FriendsList() {
@@ -27,21 +29,18 @@ function FriendsList() {
   useEffect(() => {
     const userRef = doc(db, "users", auth.currentUser!.uid);
     const unsubcribe = onSnapshot(userRef, (document) => {
-
       const friendPromises = document.data()?.rooms.map((room: UserRoom) => {
         const friendRef = doc(db, "users", room.friendId);
         return getDoc(friendRef);
       });
 
       Promise.all(friendPromises).then((friends) => {
-
         const data = friends.map((friend) => {
-
           const data = friend.data();
 
-          const room = document.data()?.rooms.find((room: UserRoom) => room.friendId === friend.id);
-
-          console.log(room?.lastMessage)
+          const room: UserRoom = document
+            .data()
+            ?.rooms.find((room: UserRoom) => room.friendId === friend.id);
 
           return {
             uid: data.uid,
@@ -49,11 +48,11 @@ function FriendsList() {
             photoURL: data.photoURL,
             lastMessage: room?.lastMessage,
             roomid: room?.roomid,
+            timestamp: room?.timestamp,
           };
         });
 
         setFriends(data);
-        
       });
     });
 
@@ -84,7 +83,11 @@ function FriendsList() {
               <p className="text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2">
                 {friend.lastMessage}
               </p>
-              <p className="text-[10px] w-[20%] text-[#A6A3B8]">45 min</p>
+              {friend.timestamp && (
+                <p className="text-[10px] w-[20%] text-[#A6A3B8]">
+                  {format(new Date(friend.timestamp), "p")}
+                </p>
+              )}
             </CardContent>
           </div>
         </Card>
@@ -94,4 +97,3 @@ function FriendsList() {
 }
 
 export default FriendsList;
-

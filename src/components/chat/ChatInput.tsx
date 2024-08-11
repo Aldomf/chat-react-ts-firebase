@@ -6,8 +6,44 @@ import { IoIosSend } from "react-icons/io";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useAuth, useFirestore } from "reactfire";
 import { useChatStore } from "@/store/chat-store";
-import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  arrayUnion,
+  doc,
+  Firestore,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { Message, UserRoom } from "@/schemas/firestore-schema";
+
+const updateLastMessageandTimestamp = async (
+  db: Firestore,
+  uid: string,
+  friendId: string,
+  inputValue: string
+) => {
+  const userRef = doc(db, "users", uid);
+  const { rooms } = (await getDoc(userRef)).data() as Uroom;
+
+  const updatedRooms = rooms.map((room: UserRoom) => {
+    if (room.friendId === friendId) {
+      return {
+        ...room,
+        lastMessage: inputValue,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    return room;
+  });
+
+  await updateDoc(userRef, {
+    rooms: updatedRooms,
+  });
+};
+
+interface Uroom {
+  rooms: UserRoom[];
+}
 
 function ChatInput() {
   const db = useFirestore();
@@ -28,6 +64,7 @@ function ChatInput() {
   const handleSubmit = async () => {
     if (inputValue.trim()) {
       try {
+        // send message to firebase
         const roomRef = doc(db, "rooms", friend!.roomid);
         const messages: Message = {
           message: inputValue,
@@ -39,39 +76,19 @@ function ChatInput() {
           messages: arrayUnion(messages),
         });
 
-        //update last message
-        const userRef = doc(db, "users", auth.currentUser!.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const rooms = userData.rooms || [];
-      
-          // Find the room that matches the friendId
-          const roomToUpdate = rooms.find((room: UserRoom) => room.friendId === friend?.uid);
-      
-          if (roomToUpdate) {
-            // Remove the old room entry
-            await updateDoc(userRef, {
-              rooms: arrayRemove(roomToUpdate),
-            });
-      
-            // Update the lastMessage and timestamp, then add the updated room back
-            roomToUpdate.lastMessage = inputValue;
-            roomToUpdate.timestamp = new Date().toISOString();
-      
-            await updateDoc(userRef, {
-              rooms: arrayUnion(roomToUpdate),
-            });
-          }
-        }
-
-        await updateDoc(userRef, {
-          rooms: arrayUnion({
-            timestamp: new Date().toISOString(),
-            lastMessage: inputValue,
-          }),
-        });
+        //update last message and timestamp
+        await updateLastMessageandTimestamp(
+          db,
+          auth.currentUser!.uid,
+          friend!.uid,
+          inputValue
+        );
+        await updateLastMessageandTimestamp(
+          db,
+          friend!.uid,
+          auth.currentUser!.uid,
+          inputValue
+        );
 
         setInputValue(""); // Clear the input field after sending the message
       } catch (error) {
