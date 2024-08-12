@@ -7,7 +7,7 @@ import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { UserRoom } from "@/schemas/firestore-schema";
 import { useChatStore } from "@/store/chat-store";
-import { format } from "date-fns";
+import { differenceInDays, format, isToday, isYesterday } from "date-fns";
 
 interface Friend {
   uid: string;
@@ -25,6 +25,21 @@ function FriendsList() {
   const { setFriend } = useChatStore();
 
   const [friends, setFriends] = useState<Friend[]>([]);
+
+  // Assuming message.timestamp is a valid date object or timestamp
+  const getMessageTimeDisplay = (timestamp: string) => {
+    const messageDate = new Date(timestamp);
+
+    if (isToday(messageDate)) {
+      return format(messageDate, "h:mm a"); // Shows '3:45 PM'
+    } else if (isYesterday(messageDate)) {
+      return "Yesterday";
+    } else if (differenceInDays(new Date(), messageDate) <= 7) {
+      return format(messageDate, "EEEE"); // Shows the day of the week like 'Monday'
+    } else {
+      return format(messageDate, "P"); // Shows the date, like '08/12/2024'
+    }
+  };
 
   useEffect(() => {
     const userRef = doc(db, "users", auth.currentUser!.uid);
@@ -89,7 +104,7 @@ function FriendsList() {
               </p>
               {friend.timestamp && (
                 <p className="text-[10px] w-[20%] text-[#A6A3B8]">
-                  {format(new Date(friend.timestamp), "p")}
+                  {getMessageTimeDisplay(friend.timestamp)}
                 </p>
               )}
             </CardContent>
