@@ -28,5 +28,5 @@ export const registerFormSchema = z
   });
 
   export const searchFriendSchema = z.object({
-    username: z.string().min(1, "Username must be at least 1 characters"),
+    email: z.string().email("Please enter a valid email address"),
   });

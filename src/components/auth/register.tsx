@@ -25,11 +25,14 @@ import { useAuth, useFirestore, useStorage } from "reactfire";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { UserDB } from "@/schemas/firestore-schema";
+import { useChatStore } from "@/store/chat-store";
 
 function Register() {
   const auth = useAuth();
   const storage = useStorage();
   const db = useFirestore();
+
+  const { resetFriend } = useChatStore();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -52,6 +55,7 @@ function Register() {
         values.email,
         values.password
       );
+      resetFriend();
 
       // upload photo
       const storageRef = ref(storage, `users/${userCredential.user.uid}`);

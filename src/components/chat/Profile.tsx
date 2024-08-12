@@ -1,13 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
 import { useAuth, useUser } from "reactfire";
+import { useChatStore } from "@/store/chat-store";
 
 function Profile() {
   const auth = useAuth()
   const { data: user } = useUser();
+  const { resetFriend } = useChatStore();
 
 
   const handleClickSignOut = async () => {
+    resetFriend();
     await auth.signOut();
   };
   

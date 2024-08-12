@@ -4,11 +4,27 @@ import { useForm } from "react-hook-form";
 import { searchFriendSchema as formSchema } from "@/lib/zod";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addDoc, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { RoomDB, UserRoom } from "@/schemas/firestore-schema";
+import { IoSearchOutline } from "react-icons/io5";
 
 function SearchContact() {
   const auth = useAuth();
@@ -17,15 +33,15 @@ function SearchContact() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      if(auth.currentUser?.displayName === values.username) {
-        form.setError("username", {
+      if (auth.currentUser?.email === values.email) {
+        form.setError("email", {
           type: "manual",
           message: "You can't add yourself as a friend",
         });
@@ -34,12 +50,12 @@ function SearchContact() {
 
       const q = query(
         collection(db, "users"),
-        where("displayName", "==", values.username)
+        where("email", "==", values.email)
       );
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        form.setError("username", {
+        form.setError("email", {
           type: "manual",
           message: "User not found",
         });
@@ -58,7 +74,7 @@ function SearchContact() {
       const querySnapshot2 = await getDocs(q2);
 
       if (!querySnapshot2.empty) {
-        form.setError("username", {
+        form.setError("email", {
           type: "manual",
           message: "User already added",
         });
@@ -69,7 +85,7 @@ function SearchContact() {
       const newRoomDB: RoomDB = {
         messages: [],
         users: [auth.currentUser?.uid, friend.uid],
-      }
+      };
 
       const newRoomRef = await addDoc(collection(db, "rooms"), newRoomDB);
 
@@ -79,16 +95,19 @@ function SearchContact() {
         lastMessage: "",
         timestamp: "",
         friendId: friend.uid,
-      }
+      };
 
       const friendRoom: UserRoom = {
         roomid: newRoomRef.id,
         lastMessage: "",
         timestamp: "",
         friendId: auth.currentUser!.uid,
-      }
+      };
 
-      const currentUserRoomRef = doc(collection(db, "users"), auth.currentUser!.uid);
+      const currentUserRoomRef = doc(
+        collection(db, "users"),
+        auth.currentUser!.uid
+      );
       const friendRoomRef = doc(collection(db, "users"), friend.uid);
 
       await updateDoc(currentUserRoomRef, {
@@ -101,7 +120,6 @@ function SearchContact() {
       });
 
       form.reset();
-
     } catch (error) {
       console.log(error);
     }
@@ -113,21 +131,30 @@ function SearchContact() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Search contact / chat"
-                    className="rounded-3xl bg-[#E2E8F0] placeholder:text-[#A6A3B8]"
-                  />
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Search contact by email"
+                      className="rounded-3xl bg-[#E2E8F0] placeholder:text-[#A6A3B8] pl-4 pr-12"
+                    />
+                    <Button
+                      type="submit"
+                      className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-r-full w-10
+              hover:bg-white hover:border hover:border-gray-400"
+                    >
+                      <IoSearchOutline className="text-[#A6A3B8]" />
+                    </Button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
         </form>
       </Form>
     </div>

@@ -59,15 +59,19 @@ function FriendsList() {
     return unsubcribe;
   }, []);
 
+  if (friends.length === 0) {
+    return <div className="text-center">No friends found, please add some friends!</div>;
+  }
+
   return (
-    <ScrollArea className="max-h-[calc(100vh-130px)] overflow-y-auto">
+    <ScrollArea className="max-h-[calc(100vh-120px)] overflow-y-auto">
       {friends.map((friend, index) => (
         <Card
           key={index}
-          className="flex py-2 rounded-none hover:bg-[#F1F5F9] cursor-pointer border-none shadow-none"
+          className="flex py-2 rounded-none hover:bg-[#F1F5F9] cursor-pointer shadow-none"
           onClick={() => setFriend(friend)}
         >
-          <div className="flex items-center justify-center py-0 w-[35%]">
+          <div className="flex items-center justify-center py-0 w-[35%] ">
             <Avatar className="rounded-md w-[60%] h-full">
               <AvatarImage src={friend.photoURL} />
               <AvatarFallback>CN</AvatarFallback>
