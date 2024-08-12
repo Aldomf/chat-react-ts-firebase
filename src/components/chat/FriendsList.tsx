@@ -22,7 +22,7 @@ function FriendsList() {
   const db = useFirestore();
   const auth = useAuth();
 
-  const { setFriend } = useChatStore();
+  const { setFriend, friend } = useChatStore();
 
   const [friends, setFriends] = useState<Friend[]>([]);
 
@@ -79,7 +79,7 @@ function FriendsList() {
   }
 
   return (
-    <ScrollArea className="max-h-[calc(100vh-120px)] overflow-y-auto">
+    <ScrollArea className={!friend ? "max-h-[calc(100vh-120px)] overflow-y-auto" : "hidden md:inline-block"}>
       {friends.map((friend, index) => (
         <Card
           key={index}

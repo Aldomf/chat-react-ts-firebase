@@ -15,7 +15,7 @@ function Profile() {
   };
   
   return (
-    <div className="relative flex flex-col items-center">
+    <div className="relative md:flex md:flex-col md:items-center hidden">
       <div className="relative overflow-hidden w-full h-44">
         <img
           src="/profile-dog.jpg"

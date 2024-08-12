@@ -7,7 +7,7 @@ import { useChatStore } from "@/store/chat-store";
 function ChatHeader() {
   const { resetFriend, friend } = useChatStore();
   return (
-    <div className="flex justify-between items-center px-6">
+    <div className="flex justify-between items-center px-2 md:px-6 md:relative fixed top-0 left-0 right-0 z-10 bg-white">
       <Card className="flex py-2 rounded-none border-none shadow-none">
         <div className="flex items-center justify-center py-0">
           <Avatar className="rounded-md w-14 h-14 mr-2">
@@ -15,7 +15,7 @@ function ChatHeader() {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </div>
-        <div className="py-0 w-[75%] space-y-2">
+        <div className="py-0 w-20 md:w-[75%] space-y-2">
           <CardHeader className="h-fit py-0 px-0">
             <CardTitle className="text-lg text-[#64748B]">
               {friend?.displayName}

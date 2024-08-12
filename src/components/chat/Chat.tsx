@@ -7,13 +7,13 @@ function Chat() {
   const { friend } = useChatStore();
 
   if (!friend) return (
-    <div className="h-screen flex flex-col items-center justify-center border-x border-gray-200">
+    <div className="h-screen md:flex md:flex-col md:items-center md:justify-center md:border-x md:border-gray-200 hidden">
       <p>Select a friend to start chatting</p>
     </div>
   )
 
   return (
-    <div className="h-screen border-x border-gray-200 grid grid-rows-[1fr_6fr_1fr]">
+    <div className={friend ? `h-screen border-x border-gray-200 md:grid md:grid-rows-[1fr_6fr_1fr]` : `h-screen border-x border-gray-200 md:grid md:grid-rows-[1fr_6fr_1fr] hidden`}>
       <ChatHeader />
       <ChatMessages />
       <ChatInput />

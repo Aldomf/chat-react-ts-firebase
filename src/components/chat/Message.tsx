@@ -11,7 +11,7 @@ function Message({ message, date, isCurrentUser, photoUrl }: MessageProps) {
   return (
     <div
       className={cn(
-        "flex items-end py-2 px-6 space-y-2 w-full",
+        "flex items-end py-2 md:px-6 space-y-2 w-full",
         {
           "justify-end": isCurrentUser,
         }

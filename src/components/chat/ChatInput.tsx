@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { FaFaceSmile } from "react-icons/fa6";
 import { IoIosSend } from "react-icons/io";
@@ -121,13 +120,11 @@ function ChatInput() {
   };
 
   return (
-    <div className="relative flex items-center space-x-4 px-6">
-      <Button
-        className="bg-[#E2E8F0] rounded-full hover:bg-[#DBEAFE]"
+    <div className="md:relative flex items-center space-x-1 md:space-x-4 py-2 md:py-0 px-2 md:px-6 sticky bottom-0 left-0 right-0 z-10 bg-white">
+      <FaFaceSmile
+        className="w-10 h-10 rounded-full"
         onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
-      >
-        <FaFaceSmile className="text-black text-2xl" />
-      </Button>
+      />
 
       {emojiPickerVisible && (
         <div ref={emojiPickerRef} className="absolute bottom-16">
@@ -142,12 +139,7 @@ function ChatInput() {
         className="bg-[#E2E8F0]"
       />
 
-      <Button
-        className="rounded-full bg-transparent hover:bg-[#DBEAFE]"
-        onClick={handleSubmit}
-      >
-        <IoIosSend className="text-black text-2xl" />
-      </Button>
+      <IoIosSend className="rounded-full w-10 h-10" onClick={handleSubmit} />
     </div>
   );
 }

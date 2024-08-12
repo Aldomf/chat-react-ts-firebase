@@ -29,6 +29,7 @@ import { IoSearchOutline } from "react-icons/io5";
 function SearchContact() {
   const auth = useAuth();
   const db = useFirestore();
+  
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
