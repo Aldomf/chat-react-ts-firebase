@@ -24,7 +24,7 @@ function Message({ message, date, isCurrentUser, photoUrl }: MessageProps) {
           className="w-8 h-8 rounded-full mr-2"
         />
       )}
-      <div className={cn("text-[#64748F] bg-white rounded-lg p-2 max-w-[65%]", {
+      <div className={cn("text-[#64748F] bg-white rounded-lg p-2 max-w-[80%]", {
         "bg-[#2563EB]": isCurrentUser,
         "text-white": isCurrentUser,
       })}>

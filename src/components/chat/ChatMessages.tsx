@@ -47,9 +47,9 @@ function ChatMessages() {
   return (
     <div
       ref={scrollAreaRef}
-      className="bg-[#DBEAFE] border-y border-[#DBEAFE] overflow-y-auto scrollable mt-[72px] border md:mt-0"
+      className="bg-[#DBEAFE] border-y border-[#DBEAFE] overflow-y-auto scrollable"
     >
-      {message.map((message, index) => (
+      {message.length > 0 ? message.map((message, index) => (
         <Message
           key={index}
           date={getMessageTimeDisplay(message.timestamp)} // 'p' is for time in 'hh:mm AM/PM' format
@@ -57,7 +57,7 @@ function ChatMessages() {
           isCurrentUser={message.uid === auth.currentUser!.uid}
           photoUrl={friend!.photoURL}
         />
-      ))}
+      )) : <p className="text-center text-sm text-yellow-600 bg-slate-100 rounded-xl p-2 md:mx-60 border-yellow-600 border">No messages yet, start chatting!</p>}
     </div>
   );
 }

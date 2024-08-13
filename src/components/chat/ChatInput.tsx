@@ -48,6 +48,7 @@ function ChatInput() {
   const db = useFirestore();
   const auth = useAuth();
   const { friend } = useChatStore();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -119,8 +120,12 @@ function ChatInput() {
     }
   };
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   return (
-    <div className="md:relative flex items-center space-x-1 md:space-x-4 py-2 md:py-0 px-2 md:px-6 sticky bottom-0 left-0 right-0 z-10 bg-white">
+    <div className="md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-0 px-2 md:px-6 bg-white">
       <FaFaceSmile
         className="w-10 h-10 rounded-full"
         onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
@@ -133,9 +138,11 @@ function ChatInput() {
       )}
 
       <Input
+        ref={inputRef}
         value={inputValue}
         onKeyDown={handleKeyDown}
         onChange={(e) => setInputValue(e.target.value)}
+        placeholder="Type a message..."
         className="bg-[#E2E8F0]"
       />
 
