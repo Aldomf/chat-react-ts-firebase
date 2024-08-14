@@ -79,6 +79,7 @@ function Register() {
         email: values.email,
         photoURL: downloadURL,
         uid: userCredential.user.uid,
+        isTyping: false,
         friends: [],
         rooms: [],
       }

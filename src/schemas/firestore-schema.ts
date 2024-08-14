@@ -17,6 +17,7 @@ export interface UserDB {
   email: string;
   photoURL: string;
   uid: string;
+  isTyping: boolean;
   friends: string[];
   rooms: UserRoom[];
 }

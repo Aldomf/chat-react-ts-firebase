@@ -13,6 +13,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { Message, UserRoom } from "@/schemas/firestore-schema";
+import { useTypingStore } from "@/store/typing-store";
 
 const updateLastMessageandTimestamp = async (
   db: Firestore,
@@ -48,12 +49,15 @@ function ChatInput() {
   const db = useFirestore();
   const auth = useAuth();
   const { friend } = useChatStore();
+  const { setIsUserTyping } = useTypingStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
     // Assuming emojiObject contains an emoji property with the actual emoji character
@@ -90,11 +94,33 @@ function ChatInput() {
           inputValue
         );
 
-        setInputValue(""); // Clear the input field after sending the message
+        setInputValue("");
+        setIsUserTyping(false);
       } catch (error) {
         console.log(error);
       }
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+
+    const currentUserRef = doc(db, "users", auth.currentUser!.uid);
+    updateDoc(currentUserRef, {
+      isTyping: true,
+    });
+
+    // Clear the previous timeout to avoid multiple triggers
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a timeout to reset the typing state after the user stops typing
+    typingTimeoutRef.current = setTimeout(() => {
+      updateDoc(currentUserRef, {
+        isTyping: false,
+      });
+    }, 1000);
   };
 
   useEffect(() => {
@@ -141,7 +167,7 @@ function ChatInput() {
         ref={inputRef}
         value={inputValue}
         onKeyDown={handleKeyDown}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={handleInputChange}
         placeholder="Type a message..."
         className="bg-[#E2E8F0]"
       />
