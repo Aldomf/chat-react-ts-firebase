@@ -74,6 +74,7 @@ function ChatInput() {
           message: inputValue,
           timestamp: new Date().toISOString(),
           uid: auth.currentUser!.uid,
+          isRead: false,
         };
 
         await updateDoc(roomRef, {

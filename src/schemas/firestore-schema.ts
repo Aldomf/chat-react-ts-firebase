@@ -9,6 +9,7 @@ export interface Message {
   message: string;
   timestamp: string;
   uid: string;
+  isRead: boolean;
 }
 
 // user schema

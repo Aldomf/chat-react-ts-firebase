@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
 import { Message as MessageType } from "@/schemas/firestore-schema";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { useChatStore } from "@/store/chat-store";
 import { differenceInDays, format, isToday, isYesterday } from "date-fns";
@@ -32,11 +32,31 @@ function ChatMessages() {
   useEffect(() => {
     const roomRef = doc(db, "rooms", friend!.roomid);
     const unsubscribe = onSnapshot(roomRef, (snapshot) => {
-      setMessage(snapshot.data()?.messages);
+      const currentMessages = snapshot.data()?.messages || [];
+      setMessage(currentMessages);
+  
+      console.log(currentMessages);
+  
+      if (currentMessages.length > 0) {
+        const updatedMessages = currentMessages.map((message: MessageType) => {
+          if (message.isRead === false && message.uid === friend!.uid) {
+            return { ...message, isRead: true };
+          }
+          return message;
+        });
+  
+        // Only update if there is a change
+        if (JSON.stringify(currentMessages) !== JSON.stringify(updatedMessages)) {
+          updateDoc(roomRef, {
+            messages: updatedMessages,
+          });
+        }
+      }
     });
-
+  
     return unsubscribe;
   }, [friend]);
+  
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -56,6 +76,7 @@ function ChatMessages() {
           message={message.message}
           isCurrentUser={message.uid === auth.currentUser!.uid}
           photoUrl={friend!.photoURL}
+          isRead={message.isRead}
         />
       )) : <p className="text-center text-sm text-yellow-600 bg-slate-100 rounded-xl p-2 md:mx-60 border-yellow-600 border">No messages yet, start chatting!</p>}
     </div>
