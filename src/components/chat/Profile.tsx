@@ -6,7 +6,7 @@ import { useProfileStore } from "@/store/toggleProfile-store";
 import { IoMdClose } from "react-icons/io";
 
 function Profile() {
-  const auth = useAuth()
+  const auth = useAuth();
   const { data: user } = useUser();
   const { resetFriend } = useChatStore();
   const { toggleProfileSidebar } = useProfileStore();
@@ -15,11 +15,14 @@ function Profile() {
     resetFriend();
     await auth.signOut();
   };
-  
+
   return (
     <div className="relative md:flex md:flex-col md:items-center">
       <div className="relative overflow-hidden w-full h-44">
-      <IoMdClose className="absolute top-2 left-2 text-white cursor-pointer w-8 h-8 md:hidden" onClick={toggleProfileSidebar}/>
+        <IoMdClose
+          className="absolute top-2 left-2 text-white cursor-pointer w-8 h-8 md:hidden"
+          onClick={toggleProfileSidebar}
+        />
         <img
           src="/profile-dog.jpg"
           alt="profile-dog"
@@ -37,9 +40,15 @@ function Profile() {
         <p className="mt-2 text-[#A9A9B8] text-xs font-semibold">Active now</p>
       </div>
       <div className="flex justify-center">
-      <Button className="mt-4 w-full mx-4 md:mx-0 md:w-[80%]" onClick={handleClickSignOut}>
-        Log out
-      </Button>
+        <Button
+          className="mt-4 w-full mx-4 md:mx-0 md:w-[80%]"
+          onClick={() => {
+            handleClickSignOut();
+            toggleProfileSidebar();
+          }}
+        >
+          Log out
+        </Button>
       </div>
     </div>
   );
