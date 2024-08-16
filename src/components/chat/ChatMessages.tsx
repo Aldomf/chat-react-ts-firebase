@@ -35,8 +35,6 @@ function ChatMessages() {
       const currentMessages = snapshot.data()?.messages || [];
       setMessage(currentMessages);
   
-      console.log(currentMessages);
-  
       if (currentMessages.length > 0) {
         const updatedMessages = currentMessages.map((message: MessageType) => {
           if (message.isRead === false && message.uid === friend!.uid) {

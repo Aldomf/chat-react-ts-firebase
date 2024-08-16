@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { Message, UserRoom } from "@/schemas/firestore-schema";
 import { useTypingStore } from "@/store/typing-store";
+// import { getMessaging } from "firebase/messaging";
 
 const updateLastMessageandTimestamp = async (
   db: Firestore,
@@ -65,6 +66,24 @@ function ChatInput() {
     setInputValue((prevValue) => prevValue + emoji);
   };
 
+  // const getFriendFCMToken = async (friendUid: string): Promise<string | null> => {
+  //   try {
+  //     const userRef = doc(db, "users", friendUid);
+  //     const userDoc = await getDoc(userRef);
+  
+  //     if (userDoc.exists()) {
+  //       const userData = userDoc.data() as UserDB;
+  //       return userData?.fcmToken || null; // Replace 'fcmToken' with your actual token field name
+  //     }
+  
+  //     return null;
+  //   } catch (error) {
+  //     console.error('Error retrieving friend FCM token:', error);
+  //     return null;
+  //   }
+  // };
+  
+
   const handleSubmit = async () => {
     if (inputValue.trim()) {
       try {
@@ -94,6 +113,15 @@ function ChatInput() {
           auth.currentUser!.uid,
           inputValue
         );
+
+       // Display a local notification
+      if (Notification.permission === "granted") {
+        console.log("first")
+        new Notification("New message", {
+          body: inputValue,
+          icon: "/icon.png", // replace with the path to your icon
+        });
+      }
 
         setInputValue("");
         setIsUserTyping(false);

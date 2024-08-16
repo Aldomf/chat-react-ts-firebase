@@ -21,6 +21,7 @@ export interface UserDB {
   isTyping: boolean;
   friends: string[];
   rooms: UserRoom[];
+  fcmToken?: string;
 }
 
 // room schema

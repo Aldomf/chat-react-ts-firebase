@@ -1,3 +1,6 @@
+import { initializeApp } from "firebase/app";
+import { getMessaging } from "firebase/messaging";
+
 export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -6,3 +9,6 @@ export const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+const app = initializeApp(firebaseConfig);
+export const messaging = getMessaging(app);
