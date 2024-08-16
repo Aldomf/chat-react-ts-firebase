@@ -114,14 +114,14 @@ function ChatInput() {
           inputValue
         );
 
-       // Display a local notification
-      if (Notification.permission === "granted") {
-        console.log("first")
-        new Notification("New message", {
-          body: inputValue,
-          icon: "/icon.png", // replace with the path to your icon
-        });
-      }
+      //  // Display a local notification
+      // if (Notification.permission === "granted") {
+      //   console.log("first")
+      //   new Notification("New message", {
+      //     body: inputValue,
+      //     icon: "/icon.png", // replace with the path to your icon
+      //   });
+      // }
 
         setInputValue("");
         setIsUserTyping(false);
