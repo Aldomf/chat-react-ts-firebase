@@ -115,9 +115,11 @@ function ChatInput() {
         );
 
         // Send notification
+        console.log('API URL:', import.meta.env.VITE_API_URL);
+        const apiUrl = import.meta.env.VITE_API_URL;
       const friendFCMToken = await getFriendFCMToken(friend!.uid);
       if (friendFCMToken) {
-        await fetch('http://localhost:3000/send-notification', {
+        await fetch(`${apiUrl}/send-notification`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
