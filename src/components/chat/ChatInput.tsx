@@ -12,7 +12,7 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
-import { Message, UserRoom } from "@/schemas/firestore-schema";
+import { Message, UserDB, UserRoom } from "@/schemas/firestore-schema";
 import { useTypingStore } from "@/store/typing-store";
 // import { getMessaging } from "firebase/messaging";
 
@@ -66,22 +66,22 @@ function ChatInput() {
     setInputValue((prevValue) => prevValue + emoji);
   };
 
-  // const getFriendFCMToken = async (friendUid: string): Promise<string | null> => {
-  //   try {
-  //     const userRef = doc(db, "users", friendUid);
-  //     const userDoc = await getDoc(userRef);
+  const getFriendFCMToken = async (friendUid: string): Promise<string | null> => {
+    try {
+      const userRef = doc(db, "users", friendUid);
+      const userDoc = await getDoc(userRef);
   
-  //     if (userDoc.exists()) {
-  //       const userData = userDoc.data() as UserDB;
-  //       return userData?.fcmToken || null; // Replace 'fcmToken' with your actual token field name
-  //     }
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as UserDB;
+        return userData?.fcmToken || null; // Replace 'fcmToken' with your actual token field name
+      }
   
-  //     return null;
-  //   } catch (error) {
-  //     console.error('Error retrieving friend FCM token:', error);
-  //     return null;
-  //   }
-  // };
+      return null;
+    } catch (error) {
+      console.error('Error retrieving friend FCM token:', error);
+      return null;
+    }
+  };
   
 
   const handleSubmit = async () => {
@@ -114,14 +114,20 @@ function ChatInput() {
           inputValue
         );
 
-      //  // Display a local notification
-      // if (Notification.permission === "granted") {
-      //   console.log("first")
-      //   new Notification("New message", {
-      //     body: inputValue,
-      //     icon: "/icon.png", // replace with the path to your icon
-      //   });
-      // }
+        // Send notification
+      const friendFCMToken = await getFriendFCMToken(friend!.uid);
+      if (friendFCMToken) {
+        await fetch('http://localhost:3000/send-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: friendFCMToken,
+            message: inputValue, // Ensure this is a string
+          }),
+        });
+      }
 
         setInputValue("");
         setIsUserTyping(false);
