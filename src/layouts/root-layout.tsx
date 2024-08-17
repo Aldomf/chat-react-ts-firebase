@@ -22,7 +22,10 @@ const handleForegroundMessage = (payload: CustomNotificationPayload) => {
     icon: '/profile-dog.jpg',
   };
 
-  new Notification(notificationTitle, notificationOptions);
+  // Avoid triggering another notification if already handled
+  if (document.visibilityState === 'visible') {
+    new Notification(notificationTitle, notificationOptions);
+  }
 };
 
 function RootLayout() {
