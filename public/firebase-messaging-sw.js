@@ -18,11 +18,35 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/profile-dog.jpg'
-    };
+    // Only show notification if the app is not in the foreground
+    if (Notification.permission === 'granted' && !document.hasFocus()) {
+        const notificationTitle = payload.notification.title;
+        const notificationOptions = {
+            body: payload.notification.body,
+            icon: '/profile-dog.jpg'
+        };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+        self.registration.showNotification(notificationTitle, notificationOptions);
+    }
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close(); // Close the notification
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then((clientList) => {
+            // If the app is already open, focus on it
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url === '/' && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If the app is not open, open it in a new window
+            if (clients.openWindow) {
+                return clients.openWindow('/');
+            }
+        })
+    );
 });
