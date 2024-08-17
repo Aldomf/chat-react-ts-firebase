@@ -32,6 +32,7 @@ function RootLayout() {
   const messaging = getMessaging();  // Initialize Firebase messaging
 
   useEffect(() => {
+    console.log('Registering service worker...');
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then((registration) => {
