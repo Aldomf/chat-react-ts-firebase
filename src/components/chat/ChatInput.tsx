@@ -66,23 +66,24 @@ function ChatInput() {
     setInputValue((prevValue) => prevValue + emoji);
   };
 
-  const getFriendFCMToken = async (friendUid: string): Promise<string | null> => {
+  const getFriendFCMToken = async (
+    friendUid: string
+  ): Promise<string | null> => {
     try {
       const userRef = doc(db, "users", friendUid);
       const userDoc = await getDoc(userRef);
-  
+
       if (userDoc.exists()) {
         const userData = userDoc.data() as UserDB;
         return userData?.fcmToken || null; // Replace 'fcmToken' with your actual token field name
       }
-  
+
       return null;
     } catch (error) {
-      console.error('Error retrieving friend FCM token:', error);
+      console.error("Error retrieving friend FCM token:", error);
       return null;
     }
   };
-  
 
   const handleSubmit = async () => {
     if (inputValue.trim()) {
@@ -115,21 +116,21 @@ function ChatInput() {
         );
 
         // Send notification
-        console.log('API URL:', import.meta.env.VITE_API_URL);
+        console.log("API URL:", import.meta.env.VITE_API_URL);
         const apiUrl = import.meta.env.VITE_API_URL;
-      const friendFCMToken = await getFriendFCMToken(friend!.uid);
-      if (friendFCMToken) {
-        await fetch(`${apiUrl}/send-notification`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token: friendFCMToken,
-            message: inputValue, // Ensure this is a string
-          }),
-        });
-      }
+        const friendFCMToken = await getFriendFCMToken(friend!.uid);
+        if (friendFCMToken) {
+          await fetch(`${apiUrl}/send-notification`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              token: friendFCMToken,
+              message: inputValue, // Ensure this is a string
+            }),
+          });
+        }
 
         setInputValue("");
         setIsUserTyping(false);
