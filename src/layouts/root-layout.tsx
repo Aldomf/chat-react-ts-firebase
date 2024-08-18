@@ -4,6 +4,7 @@ import ChatLayout from "./chat-layout";
 import FormLayout from "./form-layout";
 import useRequestNotificationPermission from "@/hooks/useRequestNotificationPermission";
 import { getMessaging, onMessage } from "firebase/messaging";
+import UserStatus from "@/components/UserStatus";
 
 // Define a type for the notification payload
 interface CustomNotificationPayload {
@@ -15,11 +16,11 @@ interface CustomNotificationPayload {
 
 // Function to handle incoming messages
 const handleForegroundMessage = (payload: CustomNotificationPayload) => {
-  console.log('Message received. ', payload);
-  const notificationTitle = payload.notification?.title || 'New message';
+  // console.log("Message received. ", payload);
+  const notificationTitle = payload.notification?.title || "New message";
   const notificationOptions = {
     body: payload.notification?.body,
-    icon: '/profile-dog.jpg',
+    icon: "/profile-dog.jpg",
   };
 
   new Notification(notificationTitle, notificationOptions);
@@ -34,17 +35,21 @@ function RootLayout() {
   useRequestNotificationPermission();
 
   const { status, data: useSigninCheckResult } = useSigninCheck();
-  const messaging = getMessaging();  // Initialize Firebase messaging
+  const messaging = getMessaging(); // Initialize Firebase messaging
 
   useEffect(() => {
-    console.log('Registering service worker...');
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    // console.log("Registering service worker...");
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
+          console.log(
+            "Service Worker registered with scope:",
+            registration.scope
+          );
         })
         .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+          console.error("Service Worker registration failed:", error);
         });
     }
 
@@ -62,7 +67,12 @@ function RootLayout() {
     return <div>Loading...</div>;
   }
 
-  return <div>{useSigninCheckResult.signedIn ? <ChatLayout /> : <FormLayout />}</div>;
+  return (
+    <div>
+      <UserStatus />
+      {useSigninCheckResult.signedIn ? <ChatLayout /> : <FormLayout />}
+    </div>
+  );
 }
 
 export default RootLayout;

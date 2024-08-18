@@ -9,16 +9,16 @@ function useRequestNotificationPermission() {
   
     async function saveTokenToDatabase(token: string) {
       const userId = user?.uid;
-      console.log("saveTokenToDatabase function executed");
-      console.log("userId", userId);
+      // console.log("saveTokenToDatabase function executed");
+      // console.log("userId", userId);
   
       if (userId) {
         const userRef = doc(db, "users", userId);
         const userDoc = await getDoc(userRef);
-        console.log("Found the userId");
+        // console.log("Found the userId");
   
         if (!userDoc.exists() || userDoc.data()?.fcmToken !== token) {
-          console.log("Saving token...");
+          // console.log("Saving token...");
           await setDoc(userRef, { fcmToken: token }, { merge: true })
             .then(() => console.log("FCM Token saved to database."))
             .catch((err) => console.log("Error saving FCM Token:", err));
@@ -27,11 +27,11 @@ function useRequestNotificationPermission() {
     }
   
     useEffect(() => {
-      console.log("useRequestNotificationPermission hook executed");
+      // console.log("useRequestNotificationPermission hook executed");
       const messaging = getMessaging();
   
       Notification.requestPermission().then((permission) => {
-        console.log("Notification permission status:", permission);
+        // console.log("Notification permission status:", permission);
         if (permission === "granted") {
           getToken(messaging, {
             vapidKey:

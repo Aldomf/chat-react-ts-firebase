@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface UserRoom {
   roomid: string;
   lastMessage: string;
@@ -22,6 +24,8 @@ export interface UserDB {
   friends: string[];
   rooms: UserRoom[];
   fcmToken?: string;
+  isOnline?: boolean;
+  lastActive?: Timestamp;
 }
 
 // room schema
