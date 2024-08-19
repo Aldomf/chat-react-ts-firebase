@@ -15,7 +15,7 @@ interface Friend {
   lastMessage: string;
   roomid: string;
   timestamp: string;
-  unreadCount: number; // Add this field to store the count of unread messages
+  unreadCount: number;
 }
 
 function FriendsList() {
@@ -37,6 +37,7 @@ function FriendsList() {
     }
   };
 
+  // Fetch friends and their last message data
   useEffect(() => {
     const fetchFriends = async () => {
       const userRef = doc(db, "users", auth.currentUser!.uid);
@@ -63,27 +64,50 @@ function FriendsList() {
               lastMessage: room.lastMessage,
               roomid: room.roomid,
               timestamp: room.timestamp,
-              unreadCount: unreadCount || 0, // Add unread message count
+              unreadCount: unreadCount || 0,
             };
           });
 
-        const friends = await Promise.all(friendPromises);
+        const friendsList = await Promise.all(friendPromises);
 
         // Sort friends by timestamp in descending order
-        friends.sort((a, b) => {
-          return (
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        });
-
-        setFriends(friends);
+        friendsList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setFriends(friendsList);
       });
 
       return unsubscribe;
     };
 
-    fetchFriends();
-  }, [friend]);
+    if (auth.currentUser) {
+      fetchFriends();
+    }
+  }, [auth.currentUser?.uid]); // Depend on the user ID to re-fetch friends if the user changes
+
+  // Listen for changes in the specific room's `isRead` field
+  useEffect(() => {
+    if (!friend) return;
+
+    const roomRef = doc(db, "rooms", friend.roomid);
+    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
+      const roomData = snapshot.data();
+      if (roomData) {
+        const unreadCount = roomData.messages.filter(
+          (msg: Message) =>
+            msg.uid !== auth.currentUser!.uid &&
+            msg.isRead !== undefined &&
+            !msg.isRead
+        ).length;
+
+        setFriends((prevFriends) =>
+          prevFriends.map((f) =>
+            f.roomid === friend.roomid ? { ...f, unreadCount } : f
+          )
+        );
+      }
+    });
+
+    return unsubscribe;
+  }, [friend, auth.currentUser?.uid]); // Depend on `friend` to listen to the correct room
 
   if (friends.length === 0) {
     return (
@@ -136,7 +160,7 @@ function FriendsList() {
               </p>
               {friend.unreadCount > 0 && (
                 <div className="w-[20%] flex justify-end items-center">
-                  <span className="text-sm text-white font-semibold  border border-blue-500 bg-blue-500 rounded-full size-6 flex items-center justify-center">
+                  <span className="text-sm text-white font-semibold border border-blue-500 bg-blue-500 rounded-full size-6 flex items-center justify-center">
                     {friend.unreadCount}
                   </span>
                 </div>
