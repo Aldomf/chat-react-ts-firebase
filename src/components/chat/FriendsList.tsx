@@ -67,8 +67,13 @@ function FriendsList() {
       });
 
       Promise.all(friendPromises).then((friends) => {
+        // Sort friends by timestamp in descending order
+        friends.sort((a, b) => {
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        });
         setFriends(friends);
       });
+  
     });
 
     return unsubscribe;
