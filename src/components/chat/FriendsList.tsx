@@ -38,13 +38,16 @@ function FriendsList() {
   };
 
   useEffect(() => {
-    const userRef = doc(db, "users", auth.currentUser!.uid);
-    const unsubscribe = onSnapshot(userRef, (document) => {
-      const friendPromises = document.data()?.rooms.map((room: UserRoom) => {
-        const friendRef = doc(db, "users", room.friendId);
-        return getDoc(friendRef).then((friendDoc) => {
-          const roomRef = doc(db, "rooms", room.roomid);
-          return getDoc(roomRef).then((roomDoc) => {
+    const fetchFriends = async () => {
+      const userRef = doc(db, "users", auth.currentUser!.uid);
+      const unsubscribe = onSnapshot(userRef, async (document) => {
+        const friendPromises = document
+          .data()
+          ?.rooms.map(async (room: UserRoom) => {
+            const friendRef = doc(db, "users", room.friendId);
+            const friendDoc = await getDoc(friendRef);
+            const roomRef = doc(db, "rooms", room.roomid);
+            const roomDoc = await getDoc(roomRef);
             const roomData = roomDoc.data();
             const unreadCount = roomData?.messages.filter(
               (msg: Message) =>
@@ -63,20 +66,23 @@ function FriendsList() {
               unreadCount: unreadCount || 0, // Add unread message count
             };
           });
-        });
-      });
 
-      Promise.all(friendPromises).then((friends) => {
+        const friends = await Promise.all(friendPromises);
+
         // Sort friends by timestamp in descending order
         friends.sort((a, b) => {
-          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          return (
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
         });
+
         setFriends(friends);
       });
-  
-    });
 
-    return unsubscribe;
+      return unsubscribe;
+    };
+
+    fetchFriends();
   }, [friend]);
 
   if (friends.length === 0) {
@@ -114,9 +120,11 @@ function FriendsList() {
               <CardTitle className="text-lg text-[#64748B] flex justify-between">
                 {friend.displayName}
                 {friend.timestamp && (
-                  <p className={`text-[10px] w-[20%] text-[#A6A3B8] text-right ${
-                    friend.unreadCount > 0 ? "text-blue-500 font-bold" : ""
-                  }`}>
+                  <p
+                    className={`text-[10px] w-[20%] text-[#A6A3B8] text-right ${
+                      friend.unreadCount > 0 ? "text-blue-500 font-bold" : ""
+                    }`}
+                  >
                     {getMessageTimeDisplay(friend.timestamp)}
                   </p>
                 )}
