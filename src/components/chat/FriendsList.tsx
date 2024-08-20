@@ -7,6 +7,7 @@ import { useAuth, useFirestore } from "reactfire";
 import { UserRoom, Message } from "@/schemas/firestore-schema";
 import { useChatStore } from "@/store/chat-store";
 import { differenceInDays, format, isToday, isYesterday } from "date-fns";
+import { useTypingListFriendStore } from "@/store/typing-listFriend-store";
 
 interface Friend {
   uid: string;
@@ -23,6 +24,7 @@ function FriendsList() {
   const auth = useAuth();
   const { setFriend, friend } = useChatStore();
   const [friends, setFriends] = useState<Friend[]>([]);
+  const { typingStatus, setTypingStatus } = useTypingListFriendStore();
 
   const getMessageTimeDisplay = (timestamp: string) => {
     const messageDate = new Date(timestamp);
@@ -71,7 +73,10 @@ function FriendsList() {
         const friendsList = await Promise.all(friendPromises);
 
         // Sort friends by timestamp in descending order
-        friendsList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        friendsList.sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
         setFriends(friendsList);
       });
 
@@ -109,6 +114,29 @@ function FriendsList() {
     return unsubscribe;
   }, [friend, auth.currentUser?.uid]); // Depend on `friend` to listen to the correct room
 
+  // Listen for typing status changes for all friends
+  useEffect(() => {
+    const fetchTypingStatus = async () => {
+      const userRef = doc(db, "users", auth.currentUser!.uid);
+      const userDoc = (await getDoc(userRef)).data();
+      if (userDoc) {
+        userDoc.friends.map(async (friendId: string) => {
+          const friendRef = doc(db, "users", friendId);
+          const unsubscribe = onSnapshot(friendRef, (doc) => {
+            const friendData = doc.data();
+            if (friendData) {
+              setTypingStatus(friendId, friendData.isTyping || false);
+            }
+          });
+
+          return unsubscribe;
+        });
+      }
+    };
+
+    fetchTypingStatus();
+  }, [auth.currentUser?.uid, setTypingStatus, db]);
+
   if (friends.length === 0) {
     return (
       <div className="text-center">
@@ -125,43 +153,43 @@ function FriendsList() {
           : "hidden md:inline-block"
       }
     >
-      {friends.map((friend, index) => (
+      {friends.map((f, index) => (
         <Card
           key={index}
           className={`flex py-2 rounded-none hover:bg-[#F1F5F9] cursor-pointer shadow-none pr-2 ${
-            friend.unreadCount > 0 ? "bg-[#F1F5F9]" : ""
+            f.unreadCount > 0 ? "bg-[#F1F5F9]" : ""
           }`}
-          onClick={() => setFriend(friend)}
+          onClick={() => setFriend(f)}
         >
           <div className="flex items-center justify-center py-0 w-[35%]">
             <Avatar className="rounded-md w-[60%] h-full">
-              <AvatarImage src={friend.photoURL} />
+              <AvatarImage src={f.photoURL} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </div>
           <div className="py-0 w-[75%] space-y-2">
             <CardHeader className="h-fit py-0 px-0">
               <CardTitle className="text-lg text-[#64748B] flex justify-between">
-                {friend.displayName}
-                {friend.timestamp && (
+                {f.displayName}
+                {f.timestamp && (
                   <p
                     className={`text-[10px] w-[20%] text-[#A6A3B8] text-right ${
-                      friend.unreadCount > 0 ? "text-blue-500 font-bold" : ""
+                      f.unreadCount > 0 ? "text-blue-500 font-bold" : ""
                     }`}
                   >
-                    {getMessageTimeDisplay(friend.timestamp)}
+                    {getMessageTimeDisplay(f.timestamp)}
                   </p>
                 )}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-between items-center py-0 px-0">
-              <p className="text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2">
-                {friend.lastMessage}
+              <p className={`text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2 ${typingStatus[f.uid] ? "text-blue-500" : ""}`}>
+                {typingStatus[f.uid] ? "Typing..." : f.lastMessage}
               </p>
-              {friend.unreadCount > 0 && (
+              {f.unreadCount > 0 && (
                 <div className="w-[20%] flex justify-end items-center">
                   <span className="text-sm text-white font-semibold border border-blue-500 bg-blue-500 rounded-full size-6 flex items-center justify-center">
-                    {friend.unreadCount}
+                    {f.unreadCount}
                   </span>
                 </div>
               )}
