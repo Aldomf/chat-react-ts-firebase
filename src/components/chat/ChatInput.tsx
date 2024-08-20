@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Input } from "../ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FaFaceSmile } from "react-icons/fa6";
 import { IoIosSend } from "react-icons/io";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
@@ -51,7 +51,7 @@ function ChatInput() {
   const auth = useAuth();
   const { friend } = useChatStore();
   const { setIsUserTyping } = useTypingStore();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -134,13 +134,16 @@ function ChatInput() {
 
         setInputValue("");
         setIsUserTyping(false);
+
+        // Refocus the input field after sending the message
+        inputRef.current?.focus();
       } catch (error) {
         console.log(error);
       }
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
 
     const currentUserRef = doc(db, "users", auth.currentUser!.uid);
@@ -178,7 +181,7 @@ function ChatInput() {
     };
   }, []);
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter") {
       handleSubmit();
     }
@@ -187,6 +190,15 @@ function ChatInput() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    const textarea = inputRef.current;
+    if (textarea) {
+      // Adjust height based on content
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 90)}px`; // 60px is approximately 3 rows
+    }
+  }, [inputValue]);
 
   return (
     <div className="md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-0 px-2 md:px-6 bg-white">
@@ -201,13 +213,14 @@ function ChatInput() {
         </div>
       )}
 
-      <Input
+      <Textarea
         ref={inputRef}
         value={inputValue}
         onKeyDown={handleKeyDown}
         onChange={handleInputChange}
         placeholder="Type a message..."
-        className="bg-[#E2E8F0]"
+        className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0  focus-visible:ring-offset-0"
+        rows={1} // Start with a single row
       />
 
       <IoIosSend className="rounded-full w-10 h-10" onClick={handleSubmit} />
