@@ -153,7 +153,7 @@ function ChatInput() {
             },
             body: JSON.stringify({
               token: friendFCMToken,
-              message: inputValue, // Ensure this is a string
+              message: audioUrl ? "You have received a new audio message." : inputValue,
             }),
           });
         }
