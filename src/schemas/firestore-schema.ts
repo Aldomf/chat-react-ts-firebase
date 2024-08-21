@@ -8,7 +8,8 @@ export interface UserRoom {
 }
 
 export interface Message {
-  message: string;
+  audioUrl?: string; // URL to the audio file
+  message?: string;
   timestamp: string;
   uid: string;
   isRead: boolean;

@@ -5,6 +5,7 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useAuth, useFirestore } from "reactfire";
 import { useChatStore } from "@/store/chat-store";
 import { differenceInDays, format, isToday, isYesterday } from "date-fns";
+import AudioMessage from "./AudioMessage";
 
 function ChatMessages() {
   const db = useFirestore();
@@ -34,7 +35,7 @@ function ChatMessages() {
     const unsubscribe = onSnapshot(roomRef, (snapshot) => {
       const currentMessages = snapshot.data()?.messages || [];
       setMessage(currentMessages);
-  
+
       if (currentMessages.length > 0) {
         const updatedMessages = currentMessages.map((message: MessageType) => {
           if (message.isRead === false && message.uid === friend!.uid) {
@@ -42,19 +43,20 @@ function ChatMessages() {
           }
           return message;
         });
-  
+
         // Only update if there is a change
-        if (JSON.stringify(currentMessages) !== JSON.stringify(updatedMessages)) {
+        if (
+          JSON.stringify(currentMessages) !== JSON.stringify(updatedMessages)
+        ) {
           updateDoc(roomRef, {
             messages: updatedMessages,
           });
         }
       }
     });
-  
+
     return unsubscribe;
   }, [friend]);
-  
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -67,16 +69,33 @@ function ChatMessages() {
       ref={scrollAreaRef}
       className="bg-[#DBEAFE] border-y border-[#DBEAFE] overflow-y-auto scrollable"
     >
-      {message.length > 0 ? message.map((message, index) => (
-        <Message
-          key={index}
-          date={getMessageTimeDisplay(message.timestamp)} // 'p' is for time in 'hh:mm AM/PM' format
-          message={message.message}
-          isCurrentUser={message.uid === auth.currentUser!.uid}
-          photoUrl={friend!.photoURL}
-          isRead={message.isRead}
-        />
-      )) : <p className="text-center text-sm text-yellow-600 bg-slate-100 rounded-xl p-2 md:mx-60 border-yellow-600 border">No messages yet, start chatting!</p>}
+      {message.length > 0 ? (
+        message.map((message, index) => (
+          <div key={index}>
+            {message.message ? (
+              <Message
+                date={getMessageTimeDisplay(message.timestamp)}
+                message={message.message}
+                isCurrentUser={message.uid === auth.currentUser!.uid}
+                photoUrl={friend!.photoURL}
+                isRead={message.isRead}
+              />
+            ) : (
+              <AudioMessage
+                date={getMessageTimeDisplay(message.timestamp)}
+                audioUrl={message.audioUrl}
+                isCurrentUser={message.uid === auth.currentUser!.uid}
+                photoUrl={friend!.photoURL}
+                isRead={message.isRead}
+              />
+            )}
+          </div>
+        ))
+      ) : (
+        <p className="text-center text-sm text-yellow-600 bg-slate-100 rounded-xl p-2 md:mx-60 border-yellow-600 border">
+          No messages yet, start chatting!
+        </p>
+      )}
     </div>
   );
 }

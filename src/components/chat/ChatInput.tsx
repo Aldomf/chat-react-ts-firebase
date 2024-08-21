@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { FaFaceSmile } from "react-icons/fa6";
-import { IoIosSend } from "react-icons/io";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { useAuth, useFirestore } from "reactfire";
+import { useAuth, useFirestore, useStorage } from "reactfire";
 import { useChatStore } from "@/store/chat-store";
 import {
   arrayUnion,
@@ -14,7 +13,10 @@ import {
 } from "firebase/firestore";
 import { Message, UserDB, UserRoom } from "@/schemas/firestore-schema";
 import { useTypingStore } from "@/store/typing-store";
-// import { getMessaging } from "firebase/messaging";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; 
+import { MdMic } from "react-icons/md";
+import { MdMicOff } from "react-icons/md";
+import { IoMdSend } from "react-icons/io";
 
 const updateLastMessageandTimestamp = async (
   db: Firestore,
@@ -49,8 +51,9 @@ interface Uroom {
 function ChatInput() {
   const db = useFirestore();
   const auth = useAuth();
+  const storage = useStorage(); // Initialize Firebase Storage
   const { friend } = useChatStore();
-  const { setIsUserTyping } = useTypingStore();
+  const { setIsUserTyping} = useTypingStore();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
@@ -59,6 +62,10 @@ function ChatInput() {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
     // Assuming emojiObject contains an emoji property with the actual emoji character
@@ -85,34 +92,53 @@ function ChatInput() {
     }
   };
 
+  const handleAudioUpload = async (audioBlob: Blob): Promise<string | null> => {
+    try {
+      const audioRef = ref(storage, `audios/${auth.currentUser!.uid}/${Date.now()}.webm`);
+      await uploadBytes(audioRef, audioBlob);
+      const audioUrl = await getDownloadURL(audioRef);
+      return audioUrl;
+    } catch (error) {
+      console.error("Audio upload failed:", error);
+      return null;
+    }
+  };
+
   const handleSubmit = async () => {
-    if (inputValue.trim()) {
+    console.log("handleSubmit")
+    if (inputValue.trim() || audioBlob) {
       try {
-        // send message to firebase
+        let audioUrl = null;
+
+        if (audioBlob) {
+          console.log("yyy")
+          audioUrl = await handleAudioUpload(audioBlob);
+        }
+
         const roomRef = doc(db, "rooms", friend!.roomid);
-        const messages: Message = {
+        const message: Message = {
           message: inputValue,
           timestamp: new Date().toISOString(),
           uid: auth.currentUser!.uid,
           isRead: false,
+          ...(audioUrl && { audioUrl }), // Add audio URL if present
         };
 
         await updateDoc(roomRef, {
-          messages: arrayUnion(messages),
+          messages: arrayUnion(message),
         });
 
-        //update last message and timestamp
         await updateLastMessageandTimestamp(
           db,
           auth.currentUser!.uid,
           friend!.uid,
-          inputValue
+          audioUrl ? "Audio Message" : inputValue
         );
         await updateLastMessageandTimestamp(
           db,
           friend!.uid,
           auth.currentUser!.uid,
-          inputValue
+          audioUrl ? "Audio Message" : inputValue
         );
 
         // Send notification
@@ -133,12 +159,12 @@ function ChatInput() {
         }
 
         setInputValue("");
+        setAudioBlob(null); // Reset audioBlob after sending
         setIsUserTyping(false);
 
-        // Refocus the input field after sending the message
         inputRef.current?.focus();
       } catch (error) {
-        console.log(error);
+        console.error("Error sending message:", error);
       }
     }
   };
@@ -164,6 +190,36 @@ function ChatInput() {
     }, 1000);
   };
 
+  const startRecording = async () => {
+    console.log("start")
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+
+    mediaRecorder.ondataavailable = (event) => {
+      setAudioBlob(event.data);
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  };
+  
+  useEffect(() => {
+    if (audioBlob) {
+      console.log("Audio Blob is set, triggering handleSubmit");
+      handleSubmit();
+    }
+  }, [audioBlob]);
+  
+  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -182,7 +238,8 @@ function ChatInput() {
   }, []);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault(); // Prevent the default behavior of adding a new line
       handleSubmit();
     }
   };
@@ -203,7 +260,7 @@ function ChatInput() {
   return (
     <div className="md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-0 px-2 md:px-6 bg-white">
       <FaFaceSmile
-        className="w-10 h-10 rounded-full"
+        className="size-8 rounded-full"
         onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
       />
 
@@ -220,10 +277,23 @@ function ChatInput() {
         onChange={handleInputChange}
         placeholder="Type a message..."
         className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0  focus-visible:ring-offset-0"
-        rows={1} // Start with a single row
+        rows={1}
       />
+      {inputValue.trim() ? (
+        <button className="rounded-full p-2 bg-blue-500" onClick={handleSubmit}>
+          <IoMdSend  />
+        </button>
+      ) : (
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          className={`p-2 rounded-full ${isRecording ? "bg-red-500" : "bg-blue-500"}`}
+        >
+          {isRecording ? <MdMicOff /> : <MdMic />
+          }
+        </button>
+      )}
 
-      <IoIosSend className="rounded-full w-10 h-10" onClick={handleSubmit} />
+      
     </div>
   );
 }

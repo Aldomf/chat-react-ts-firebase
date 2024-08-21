@@ -44,34 +44,33 @@ function FriendsList() {
     const fetchFriends = async () => {
       const userRef = doc(db, "users", auth.currentUser!.uid);
       const unsubscribe = onSnapshot(userRef, async (document) => {
-        const friendPromises = document
-          .data()
-          ?.rooms.map(async (room: UserRoom) => {
-            const friendRef = doc(db, "users", room.friendId);
-            const friendDoc = await getDoc(friendRef);
-            const roomRef = doc(db, "rooms", room.roomid);
-            const roomDoc = await getDoc(roomRef);
-            const roomData = roomDoc.data();
-            const unreadCount = roomData?.messages.filter(
-              (msg: Message) =>
-                msg.uid !== auth.currentUser!.uid &&
-                msg.isRead !== undefined &&
-                !msg.isRead
-            ).length;
-
-            return {
-              uid: friendDoc.id,
-              displayName: friendDoc.data()?.displayName,
-              photoURL: friendDoc.data()?.photoURL,
-              lastMessage: room.lastMessage,
-              roomid: room.roomid,
-              timestamp: room.timestamp,
-              unreadCount: unreadCount || 0,
-            };
-          });
-
+        const rooms = document.data()?.rooms || []; // Default to empty array if undefined
+        const friendPromises = rooms.map(async (room: UserRoom) => {
+          const friendRef = doc(db, "users", room.friendId);
+          const friendDoc = await getDoc(friendRef);
+          const roomRef = doc(db, "rooms", room.roomid);
+          const roomDoc = await getDoc(roomRef);
+          const roomData = roomDoc.data();
+          const unreadCount = roomData?.messages.filter(
+            (msg: Message) =>
+              msg.uid !== auth.currentUser!.uid &&
+              msg.isRead !== undefined &&
+              !msg.isRead
+          ).length;
+    
+          return {
+            uid: friendDoc.id,
+            displayName: friendDoc.data()?.displayName,
+            photoURL: friendDoc.data()?.photoURL,
+            lastMessage: room.lastMessage,
+            roomid: room.roomid,
+            timestamp: room.timestamp,
+            unreadCount: unreadCount || 0,
+          };
+        });
+    
         const friendsList = await Promise.all(friendPromises);
-
+    
         // Sort friends by timestamp in descending order
         friendsList.sort(
           (a, b) =>
@@ -79,9 +78,10 @@ function FriendsList() {
         );
         setFriends(friendsList);
       });
-
+    
       return unsubscribe;
     };
+    
 
     if (auth.currentUser) {
       fetchFriends();
