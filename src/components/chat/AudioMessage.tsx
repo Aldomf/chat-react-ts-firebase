@@ -19,43 +19,56 @@ function AudioMessage({
 }: AudioMessageProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
+    const fetchDuration = (url: string) => {
+      const player = new Audio(url);
+      player.addEventListener("durationchange", function () {
+        if (this.duration !== Infinity && this.duration > 0) {
+          setDuration(this.duration);
+        }
+        player.remove();
+      }, false);
+      player.load();
+      player.currentTime = 24 * 60 * 60; // Fake big time
+      player.volume = 0;
+      player.play().catch((e) => console.error("Playback error:", e));
+    };
+
+    if (audioUrl) {
+      fetchDuration(audioUrl);
+    }
+
     const audio = audioRef.current;
 
-    if (audio) {
-      const updateProgress = () => {
-        setCurrentTime(audio.currentTime);
-        setProgress((audio.currentTime / audio.duration) * 100 || 0);
-      };
-
-      const setAudioDuration = () => {
-        // Ensure the duration is valid before setting it
-        if (!isNaN(audio.duration) && isFinite(audio.duration)) {
-          setDuration(audio.duration);
+    const updateProgress = () => {
+      if (audio) {
+        if (!isNaN(audio.currentTime) && isFinite(audio.currentTime)) {
+          setCurrentTime(audio.currentTime);
+          setProgress((audio.currentTime / audio.duration) * 100 || 0);
         }
-      };
+      }
+    };
 
-      const handleEnd = () => {
-        setIsPlaying(false);
-        setProgress(0); // Reset progress when audio ends
-        setCurrentTime(0); // Reset currentTime when audio ends
-      };
+    const handleEnd = () => {
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime(0);
+    };
 
+    if (audio) {
       audio.addEventListener("timeupdate", updateProgress);
-      audio.addEventListener("loadedmetadata", setAudioDuration);
       audio.addEventListener("ended", handleEnd);
 
       return () => {
         audio.removeEventListener("timeupdate", updateProgress);
-        audio.removeEventListener("loadedmetadata", setAudioDuration);
         audio.removeEventListener("ended", handleEnd);
       };
     }
-  }, []);
+  }, [audioUrl]);
 
   const handlePlayPause = () => {
     const audio = audioRef.current;
@@ -75,7 +88,7 @@ function AudioMessage({
       const seconds = Math.floor(time % 60);
       return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     }
-    return "0:00"; // Default fallback if time is invalid
+    return "0:00";
   };
 
   const handleProgressBarClick = (event: React.MouseEvent<HTMLDivElement>) => {
