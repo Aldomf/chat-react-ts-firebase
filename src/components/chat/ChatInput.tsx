@@ -17,6 +17,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { MdMic } from "react-icons/md";
 import { MdMicOff } from "react-icons/md";
 import { IoMdSend } from "react-icons/io";
+import { v4 as uuidv4 } from 'uuid';
 
 const updateLastMessageandTimestamp = async (
   db: Firestore,
@@ -67,6 +68,8 @@ function ChatInput() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
+  const messageId = uuidv4();
+
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
     // Assuming emojiObject contains an emoji property with the actual emoji character
     const emoji = emojiObject.emoji;
@@ -105,13 +108,11 @@ function ChatInput() {
   };
 
   const handleSubmit = async () => {
-    console.log("handleSubmit")
     if (inputValue.trim() || audioBlob) {
       try {
         let audioUrl = null;
 
         if (audioBlob) {
-          console.log("yyy")
           audioUrl = await handleAudioUpload(audioBlob);
         }
 
@@ -121,7 +122,8 @@ function ChatInput() {
           timestamp: new Date().toISOString(),
           uid: auth.currentUser!.uid,
           isRead: false,
-          ...(audioUrl && { audioUrl }), // Add audio URL if present
+          messageId,
+          ...(audioUrl && { audioUrl, isListened: false }), // Add audio URL if present
         };
 
         await updateDoc(roomRef, {
@@ -142,7 +144,6 @@ function ChatInput() {
         );
 
         // Send notification
-        console.log("API URL:", import.meta.env.VITE_API_URL);
         const apiUrl = import.meta.env.VITE_API_URL;
         const friendFCMToken = await getFriendFCMToken(friend!.uid);
         if (friendFCMToken) {
@@ -191,7 +192,6 @@ function ChatInput() {
   };
 
   const startRecording = async () => {
-    console.log("start")
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
@@ -213,7 +213,6 @@ function ChatInput() {
   
   useEffect(() => {
     if (audioBlob) {
-      console.log("Audio Blob is set, triggering handleSubmit");
       handleSubmit();
     }
   }, [audioBlob]);

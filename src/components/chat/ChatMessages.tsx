@@ -32,7 +32,7 @@ function ChatMessages() {
 
   useEffect(() => {
     const roomRef = doc(db, "rooms", friend!.roomid);
-    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
+    const unsubscribe = onSnapshot(roomRef, async (snapshot) => {
       const currentMessages = snapshot.data()?.messages || [];
       setMessage(currentMessages);
 
@@ -48,7 +48,7 @@ function ChatMessages() {
         if (
           JSON.stringify(currentMessages) !== JSON.stringify(updatedMessages)
         ) {
-          updateDoc(roomRef, {
+          await updateDoc(roomRef, {
             messages: updatedMessages,
           });
         }
@@ -87,6 +87,8 @@ function ChatMessages() {
                 isCurrentUser={message.uid === auth.currentUser!.uid}
                 photoUrl={friend!.photoURL}
                 isRead={message.isRead}
+                messageId={message.messageId || ""}
+                isListened={message.isListened || false}
               />
             )}
           </div>

@@ -13,6 +13,8 @@ export interface Message {
   timestamp: string;
   uid: string;
   isRead: boolean;
+  isListened?: boolean;
+  messageId?: string; // Add this to identify the message
 }
 
 // user schema
