@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "../ui/button";
 import { useChatStore } from "@/store/chat-store";
 import { useTypingStore } from "@/store/typing-store";
 import { doc, onSnapshot } from "firebase/firestore";
@@ -8,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useFirestore } from "reactfire";
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
 import { useRecordingStore } from "@/store/recording-store";
+import { IoMdClose } from "react-icons/io";
 
 function ChatHeader() {
   const db = useFirestore();
@@ -55,7 +55,7 @@ function ChatHeader() {
   };
 
   return (
-    <div className="flex justify-between items-center px-2 md:px-6 md:relative bg-white">
+    <div className="flex justify-between items-center px-2 md:px-6 md:relative bg-white border-b border-gray-200">
       <Card className="flex py-2 rounded-none shadow-none border-none w-48">
         <div className="flex items-center justify-center py-0">
           <Avatar className="rounded-md w-14 h-14 mr-2">
@@ -63,7 +63,7 @@ function ChatHeader() {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </div>
-        <div className="py-0 w-32 md:w-[75%] space-y-2">
+        <div className="py-0 w-32 md:w-[100%]">
           <CardHeader className="h-fit py-0 px-0">
             <CardTitle className="text-lg text-[#64748B] truncate">
               {friend?.displayName}
@@ -77,7 +77,7 @@ function ChatHeader() {
         </div>
       </Card>
       <div className="flex items-center">
-        <Button onClick={resetFriend}>Close chat</Button>
+        <IoMdClose className="text-2xl cursor-pointer" onClick={resetFriend} />
       </div>
     </div>
   );

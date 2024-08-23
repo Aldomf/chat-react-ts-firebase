@@ -20,7 +20,7 @@ function Profile() {
     <div className="relative md:flex md:flex-col md:items-center">
       <div className="relative overflow-hidden w-full h-44">
         <IoMdClose
-          className="absolute top-2 left-2 text-white cursor-pointer w-8 h-8 md:hidden"
+          className="absolute top-2 left-2 text-white cursor-pointer w-8 h-8 lg:hidden"
           onClick={toggleProfileSidebar}
         />
         <img
@@ -39,7 +39,7 @@ function Profile() {
         </h3>
         <p className="mt-2 text-[#A9A9B8] text-xs font-semibold">Active now</p>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center w-full">
         <Button
           className="mt-4 w-full mx-4 md:mx-0 md:w-[80%]"
           onClick={() => {

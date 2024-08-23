@@ -299,20 +299,27 @@ function ChatInput() {
 
   useEffect(() => {
     const bars = document.querySelectorAll(".bar");
-  
+
     // Use type assertion to specify that bars are HTML elements
     bars.forEach((bar) => {
       const element = bar as HTMLElement;
-      element.style.animationDuration = `${Math.random() * (0.75 - 0.25) + 0.25}s`;
+      element.style.animationDuration = `${
+        Math.random() * (0.75 - 0.25) + 0.25
+      }s`;
     });
   }, [isRecording]); // Run this effect when isRecording changes
-  
 
   return (
-    <div className="md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-0 px-2 md:px-6 bg-white">
+    <div
+      className={` ${
+        isRecording
+          ? "md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-4 px-2 md:px-6 bg-white"
+          : "md:relative flex items-center space-x-2 md:space-x-4 py-1 px-2 md:px-6 bg-transparent"
+      }`}
+    >
       {!isRecording && (
         <FaFaceSmile
-          className="size-8 rounded-full"
+          className="size-10 rounded-full"
           onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
         />
       )}
@@ -329,84 +336,96 @@ function ChatInput() {
           value={inputValue}
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
-          placeholder="Type a message..."
-          className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0"
+          placeholder="Message..."
+          className="bg-white p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full placeholder:text-gray-500 placeholder:font-semibold"
           rows={1}
         />
       )}
 
-      <div className={isRecording ? "flex items-center justify-between space-x-2 w-full" : ""}>
-      {isRecording && (
-        <button
-          onClick={cancelRecording}
-          className="p-2 rounded-full bg-red-500"
-        >
-          <IoTrashOutline className="text-white" />
-        </button>
-      )}
-
-      {isRecording && (
-        <div className="sound-wave-bars">
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar hidden md:block"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-      </div>
-      
-      )}
-
-      {inputValue.trim() ? (
-        <button className="rounded-full p-2 bg-blue-500" onClick={handleSubmit}>
-          <IoMdSend />
-        </button>
-      ) : (
-        <>
+      <div
+        className={
+          isRecording
+            ? "flex items-center justify-between space-x-2 w-full"
+            : ""
+        }
+      >
+        {isRecording && (
           <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`p-2 rounded-full bg-blue-500`}
+            onClick={cancelRecording}
+            className="p-2 rounded-full bg-red-500"
           >
-            {isRecording ? <IoMdSend /> : <MdMic />}
+            <IoTrashOutline className="text-white text-2xl" />
           </button>
-        </>
-      )}
+        )}
+
+        {isRecording && (
+          <div className="sound-wave-bars">
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar hidden md:block"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+          </div>
+        )}
+
+        {inputValue.trim() ? (
+          <button
+            className="rounded-full p-2 bg-blue-700 text-white"
+            onClick={handleSubmit}
+          >
+            <IoMdSend className="text-2xl" />
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`p-2 rounded-full bg-blue-700 size-10 flex justify-center items-center`}
+            >
+              {isRecording ? (
+                <IoMdSend className="text-white text-2xl" />
+              ) : (
+                <MdMic className="text-white text-2xl" />
+              )}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

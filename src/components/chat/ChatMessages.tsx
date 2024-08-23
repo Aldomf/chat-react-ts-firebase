@@ -67,7 +67,7 @@ function ChatMessages() {
   return (
     <div
       ref={scrollAreaRef}
-      className="bg-[#DBEAFE] border-y border-[#DBEAFE] overflow-y-auto scrollable"
+      className="overflow-y-auto scrollable"
     >
       {message.length > 0 ? (
         message.map((message, index) => (
