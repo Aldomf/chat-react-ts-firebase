@@ -7,11 +7,13 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useFirestore } from "reactfire";
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
+import { useRecordingStore } from "@/store/recording-store";
 
 function ChatHeader() {
   const db = useFirestore();
   const { resetFriend, friend } = useChatStore();
   const { isUserTyping, setIsUserTyping } = useTypingStore();
+  const { isUserRecording, setIsUserRecording } = useRecordingStore();
   const [isOnline, setIsOnline] = useState<boolean | undefined>(undefined);
   const [lastActive, setLastActive] = useState<Date | undefined>(undefined);
 
@@ -25,12 +27,13 @@ function ChatHeader() {
           setIsUserTyping(data.isTyping);
           setIsOnline(data.isOnline);
           setLastActive(data.lastActive?.toDate());
+          setIsUserRecording(data.isRecording);
         }
       });
 
       return () => unsubscribe(); // Clean up the listener when the component unmounts
     }
-  }, [friend, db, setIsUserTyping]);
+  }, [friend, db, setIsUserTyping, setIsUserRecording]);
 
   const getStatusMessage = () => {
     if (isOnline) {
@@ -68,7 +71,7 @@ function ChatHeader() {
           </CardHeader>
           <CardContent className="flex justify-between items-center py-0 px-0">
             <p className="text-xs w-60 text-[#A6A3B8] font-medium mr-2">
-            {isUserTyping ? "Typing..." : getStatusMessage()}
+            {isUserTyping ? "Typing..." : isUserRecording ? "Recording..." : getStatusMessage()}
             </p>
           </CardContent>
         </div>

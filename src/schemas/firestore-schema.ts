@@ -24,6 +24,7 @@ export interface UserDB {
   photoURL: string;
   uid: string;
   isTyping: boolean;
+  isRecording: boolean;
   friends: string[];
   rooms: UserRoom[];
   fcmToken?: string;

@@ -202,11 +202,21 @@ function ChatInput() {
 
     mediaRecorder.start();
     setIsRecording(true);
+
+    const currentUserRef = doc(db, "users", auth.currentUser!.uid);
+    updateDoc(currentUserRef, {
+      isRecording: true,
+    });
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+
+      const currentUserRef = doc(db, "users", auth.currentUser!.uid);
+      updateDoc(currentUserRef, {
+        isRecording: false,
+      });
     }
     setIsRecording(false);
   };
