@@ -67,6 +67,7 @@ function ChatInput() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const messageId = uuidv4();
 
@@ -193,26 +194,33 @@ function ChatInput() {
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-
-    mediaRecorder.ondataavailable = (event) => {
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    
+    // Store the stream in a ref to stop it later
+    streamRef.current = stream;
+  
+    mediaRecorderRef.current.ondataavailable = (event) => {
       setAudioBlob(event.data);
     };
-
-    mediaRecorder.start();
+  
+    mediaRecorderRef.current.start();
     setIsRecording(true);
-
+  
     const currentUserRef = doc(db, "users", auth.currentUser!.uid);
     updateDoc(currentUserRef, {
       isRecording: true,
     });
   };
-
+  
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
+      // Stop the recording
       mediaRecorderRef.current.stop();
-
+  
+      // Stop all tracks in the media stream to stop the microphone
+      streamRef.current?.getTracks().forEach(track => track.stop());
+  
+      // Update the user's recording status in the database
       const currentUserRef = doc(db, "users", auth.currentUser!.uid);
       updateDoc(currentUserRef, {
         isRecording: false,
@@ -220,6 +228,7 @@ function ChatInput() {
     }
     setIsRecording(false);
   };
+  
   
   useEffect(() => {
     if (audioBlob) {

@@ -8,6 +8,7 @@ import { UserRoom, Message } from "@/schemas/firestore-schema";
 import { useChatStore } from "@/store/chat-store";
 import { differenceInDays, format, isToday, isYesterday } from "date-fns";
 import { useTypingListFriendStore } from "@/store/typing-listFriend-store";
+import { useRecordingListFriendStore } from "@/store/recording-listFriend-store";
 
 interface Friend {
   uid: string;
@@ -25,6 +26,7 @@ function FriendsList() {
   const { setFriend, friend } = useChatStore();
   const [friends, setFriends] = useState<Friend[]>([]);
   const { typingStatus, setTypingStatus } = useTypingListFriendStore();
+  const { recordingStatus, setRecordingStatus } = useRecordingListFriendStore();
 
   const getMessageTimeDisplay = (timestamp: string) => {
     const messageDate = new Date(timestamp);
@@ -126,6 +128,7 @@ function FriendsList() {
             const friendData = doc.data();
             if (friendData) {
               setTypingStatus(friendId, friendData.isTyping || false);
+              setRecordingStatus(friendId, friendData.isRecording || false);
             }
           });
 
@@ -183,8 +186,8 @@ function FriendsList() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-between items-center py-0 px-0">
-              <p className={`text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2 ${typingStatus[f.uid] ? "text-blue-500" : ""}`}>
-                {typingStatus[f.uid] ? "Typing..." : f.lastMessage}
+              <p className={`text-xs w-60 text-[#A6A3B8] font-medium truncate mr-2 ${typingStatus[f.uid] || recordingStatus[f.uid] ? "text-blue-500" : ""}`}>
+                {typingStatus[f.uid] ? "Typing..." : recordingStatus[f.uid] ? "Recording..." : f.lastMessage}
               </p>
               {f.unreadCount > 0 && (
                 <div className="w-[20%] flex justify-end items-center">
