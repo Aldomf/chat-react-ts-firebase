@@ -68,6 +68,7 @@ function ChatInput() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const [isAudioReadyToSend, setIsAudioReadyToSend] = useState(false);
 
   const messageId = uuidv4();
 
@@ -163,6 +164,7 @@ function ChatInput() {
         setInputValue("");
         setAudioBlob(null); // Reset audioBlob after sending
         setIsUserTyping(false);
+        setIsAudioReadyToSend(false);
 
         inputRef.current?.focus();
       } catch (error) {
@@ -227,14 +229,32 @@ function ChatInput() {
       });
     }
     setIsRecording(false);
+    setIsAudioReadyToSend(true);
+  };
+
+  // New cancel function to discard the recording
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      setAudioBlob(null); // Discard the audio
+      setIsRecording(false);
+      setIsAudioReadyToSend(false);
+
+      const currentUserRef = doc(db, "users", auth.currentUser!.uid);
+      updateDoc(currentUserRef, {
+        isRecording: false,
+      });
+    }
   };
   
   
+  // Only trigger handleSubmit if the audio is ready to be sent
   useEffect(() => {
-    if (audioBlob) {
+    if (audioBlob && isAudioReadyToSend) {
       handleSubmit();
     }
-  }, [audioBlob]);
+  }, [audioBlob, isAudioReadyToSend]);
   
   
 
@@ -294,24 +314,35 @@ function ChatInput() {
         onKeyDown={handleKeyDown}
         onChange={handleInputChange}
         placeholder="Type a message..."
-        className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0  focus-visible:ring-offset-0"
+        className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0"
         rows={1}
       />
+
       {inputValue.trim() ? (
         <button className="rounded-full p-2 bg-blue-500" onClick={handleSubmit}>
-          <IoMdSend  />
+          <IoMdSend />
         </button>
       ) : (
-        <button
-          onClick={isRecording ? stopRecording : startRecording}
-          className={`p-2 rounded-full ${isRecording ? "bg-red-500" : "bg-blue-500"}`}
-        >
-          {isRecording ? <MdMicOff /> : <MdMic />
-          }
-        </button>
-      )}
+        <>
+          <button
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`p-2 rounded-full ${
+              isRecording ? "bg-red-500" : "bg-blue-500"
+            }`}
+          >
+            {isRecording ? <MdMicOff /> : <MdMic />}
+          </button>
 
-      
+          {isRecording && (
+            <button
+              onClick={cancelRecording}
+              className="p-2 rounded-full bg-gray-500"
+            >
+              Cancel
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }
