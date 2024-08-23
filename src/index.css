@@ -113,3 +113,66 @@
 .hidden-scrollbar {
   scrollbar-width: none; /* For Firefox */
 }
+
+
+.sound-wave-bars {
+  display: flex;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+}
+
+.bar {
+  height: 20px;
+  width: 2px;
+  background-color: #ff6961;
+  border-radius: 4px;
+  margin: 0 4px;
+  animation: largeWaveAnim ease-in-out infinite alternate;
+}
+
+@keyframes largeWaveAnim {
+  0% {
+      height: 10px;
+      opacity: 0.33;
+  }
+
+  100% {
+      height: 50px;
+      opacity: 1;
+  }
+}
+
+.bar:nth-child(-n+10), .bar:nth-last-child(-n+10) {
+  background-color: #77dd77;
+  animation-name: mediumWaveAnim;
+}
+
+@keyframes mediumWaveAnim {
+  0% {
+      height: 30px;
+      opacity: 0.33;
+  }
+
+  100% {
+      height: 75px;
+      opacity: 1;
+  }
+}
+
+.bar:nth-child(-n+5), .bar:nth-last-child(-n+5) {
+  background-color: #aec6cf;
+  animation-name: smallWaveAnim;
+}
+
+@keyframes smallWaveAnim {
+  0% {
+      height: 20px;
+      opacity: 0.33;
+  }
+
+  100% {
+      height: 50px;
+      opacity: 1;
+  }
+}

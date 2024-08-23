@@ -13,11 +13,11 @@ import {
 } from "firebase/firestore";
 import { Message, UserDB, UserRoom } from "@/schemas/firestore-schema";
 import { useTypingStore } from "@/store/typing-store";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { MdMic } from "react-icons/md";
-import { MdMicOff } from "react-icons/md";
 import { IoMdSend } from "react-icons/io";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import { IoTrashOutline } from "react-icons/io5";
 
 const updateLastMessageandTimestamp = async (
   db: Firestore,
@@ -54,7 +54,7 @@ function ChatInput() {
   const auth = useAuth();
   const storage = useStorage(); // Initialize Firebase Storage
   const { friend } = useChatStore();
-  const { setIsUserTyping} = useTypingStore();
+  const { setIsUserTyping } = useTypingStore();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
@@ -99,7 +99,10 @@ function ChatInput() {
 
   const handleAudioUpload = async (audioBlob: Blob): Promise<string | null> => {
     try {
-      const audioRef = ref(storage, `audios/${auth.currentUser!.uid}/${Date.now()}.webm`);
+      const audioRef = ref(
+        storage,
+        `audios/${auth.currentUser!.uid}/${Date.now()}.webm`
+      );
       await uploadBytes(audioRef, audioBlob);
       const audioUrl = await getDownloadURL(audioRef);
       return audioUrl;
@@ -156,7 +159,9 @@ function ChatInput() {
             },
             body: JSON.stringify({
               token: friendFCMToken,
-              message: audioUrl ? "You have received a new audio message." : inputValue,
+              message: audioUrl
+                ? "You have received a new audio message."
+                : inputValue,
             }),
           });
         }
@@ -197,31 +202,31 @@ function ChatInput() {
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorderRef.current = new MediaRecorder(stream);
-    
+
     // Store the stream in a ref to stop it later
     streamRef.current = stream;
-  
+
     mediaRecorderRef.current.ondataavailable = (event) => {
       setAudioBlob(event.data);
     };
-  
+
     mediaRecorderRef.current.start();
     setIsRecording(true);
-  
+
     const currentUserRef = doc(db, "users", auth.currentUser!.uid);
     updateDoc(currentUserRef, {
       isRecording: true,
     });
   };
-  
+
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       // Stop the recording
       mediaRecorderRef.current.stop();
-  
+
       // Stop all tracks in the media stream to stop the microphone
-      streamRef.current?.getTracks().forEach(track => track.stop());
-  
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+
       // Update the user's recording status in the database
       const currentUserRef = doc(db, "users", auth.currentUser!.uid);
       updateDoc(currentUserRef, {
@@ -247,16 +252,13 @@ function ChatInput() {
       });
     }
   };
-  
-  
+
   // Only trigger handleSubmit if the audio is ready to be sent
   useEffect(() => {
     if (audioBlob && isAudioReadyToSend) {
       handleSubmit();
     }
   }, [audioBlob, isAudioReadyToSend]);
-  
-  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -295,12 +297,25 @@ function ChatInput() {
     }
   }, [inputValue]);
 
+  useEffect(() => {
+    const bars = document.querySelectorAll(".bar");
+  
+    // Use type assertion to specify that bars are HTML elements
+    bars.forEach((bar) => {
+      const element = bar as HTMLElement;
+      element.style.animationDuration = `${Math.random() * (0.75 - 0.25) + 0.25}s`;
+    });
+  }, [isRecording]); // Run this effect when isRecording changes
+  
+
   return (
     <div className="md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-0 px-2 md:px-6 bg-white">
-      <FaFaceSmile
-        className="size-8 rounded-full"
-        onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
-      />
+      {!isRecording && (
+        <FaFaceSmile
+          className="size-8 rounded-full"
+          onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
+        />
+      )}
 
       {emojiPickerVisible && (
         <div ref={emojiPickerRef} className="absolute bottom-16">
@@ -308,15 +323,75 @@ function ChatInput() {
         </div>
       )}
 
-      <Textarea
-        ref={inputRef}
-        value={inputValue}
-        onKeyDown={handleKeyDown}
-        onChange={handleInputChange}
-        placeholder="Type a message..."
-        className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0"
-        rows={1}
-      />
+      {!isRecording && (
+        <Textarea
+          ref={inputRef}
+          value={inputValue}
+          onKeyDown={handleKeyDown}
+          onChange={handleInputChange}
+          placeholder="Type a message..."
+          className="bg-[#E2E8F0] p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0"
+          rows={1}
+        />
+      )}
+
+      <div className={isRecording ? "flex items-center justify-between space-x-2 w-full" : ""}>
+      {isRecording && (
+        <button
+          onClick={cancelRecording}
+          className="p-2 rounded-full bg-red-500"
+        >
+          <IoTrashOutline className="text-white" />
+        </button>
+      )}
+
+      {isRecording && (
+        <div className="sound-wave-bars">
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar hidden md:block"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
+      
+      )}
 
       {inputValue.trim() ? (
         <button className="rounded-full p-2 bg-blue-500" onClick={handleSubmit}>
@@ -326,23 +401,13 @@ function ChatInput() {
         <>
           <button
             onClick={isRecording ? stopRecording : startRecording}
-            className={`p-2 rounded-full ${
-              isRecording ? "bg-red-500" : "bg-blue-500"
-            }`}
+            className={`p-2 rounded-full bg-blue-500`}
           >
-            {isRecording ? <MdMicOff /> : <MdMic />}
+            {isRecording ? <IoMdSend /> : <MdMic />}
           </button>
-
-          {isRecording && (
-            <button
-              onClick={cancelRecording}
-              className="p-2 rounded-full bg-gray-500"
-            >
-              Cancel
-            </button>
-          )}
         </>
       )}
+      </div>
     </div>
   );
 }
