@@ -80,6 +80,7 @@ function Register() {
         photoURL: downloadURL,
         uid: userCredential.user.uid,
         isTyping: false,
+        isRecording: false,
         friends: [],
         rooms: [],
       }
