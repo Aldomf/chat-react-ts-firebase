@@ -30,9 +30,9 @@ function Message({
         />
       )}
       <div
-        className={cn("text-[#64748F] bg-white rounded-lg p-2 max-w-[80%]", {
-          "bg-[#2563EB]": isCurrentUser,
-          "text-white": isCurrentUser,
+        className={cn("text-[#64748F] bg-white dark:bg-gray-800 dark:text-white rounded-lg p-2 max-w-[80%]", {
+          "bg-[#2563EB] dark:bg-[#2563EB]": isCurrentUser,  
+          "text-white dark:text-white": isCurrentUser,
         })}
       >
         <p className="">{message}</p>

@@ -313,7 +313,7 @@ function ChatInput() {
     <div
       className={` ${
         isRecording
-          ? "md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-4 px-2 md:px-6 bg-white"
+          ? "md:relative flex items-center space-x-2 md:space-x-4 py-2 md:py-4 px-2 md:px-6 bg-white dark:bg-gray-800 dark:text-white"
           : "md:relative flex items-center space-x-2 md:space-x-4 py-1 px-2 md:px-6 bg-transparent"
       }`}
     >
@@ -337,7 +337,7 @@ function ChatInput() {
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
           placeholder="Message..."
-          className="bg-white p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full placeholder:text-gray-500 placeholder:font-semibold"
+          className="bg-white p-2 resize-none overflow-hidden min-h-0 hidden-scrollbar focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full placeholder:text-gray-500 placeholder:font-semibold dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400"
           rows={1}
         />
       )}
@@ -345,7 +345,7 @@ function ChatInput() {
       <div
         className={
           isRecording
-            ? "flex items-center justify-between space-x-2 w-full"
+            ? "flex items-center justify-between space-x-2 w-full dark:bg-gray-800 dark:text-white"
             : ""
         }
       >

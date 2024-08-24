@@ -55,7 +55,7 @@ function ChatHeader() {
   };
 
   return (
-    <div className="flex justify-between items-center px-2 md:px-6 md:relative bg-white border-b border-gray-200">
+    <div className="flex justify-between items-center px-2 md:px-6 md:relative bg-white border-b border-gray-200 dark:border-gray-800 dark:bg-[#020817]">
       <Card className="flex py-2 rounded-none shadow-none border-none w-48">
         <div className="flex items-center justify-center py-0">
           <Avatar className="rounded-md w-14 h-14 mr-2">

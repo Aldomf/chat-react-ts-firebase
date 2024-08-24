@@ -68,6 +68,44 @@
   }
 }
 
+/* Base background image for dark mode */
+.bg-dark-mode {
+  background-image: url('/wha-dark.jpeg');
+}
+
+/* Background image for larger screens in dark mode */
+@media (min-width: 1024px) { /* Adjust breakpoint as needed */
+  .bg-dark-mode-lg {
+    background-image: url('/wha-dark.jpeg');
+  }
+}
+
+/* Base background image for light mode */
+.bg-light-mode {
+  background-image: url('/wha-light.jpeg');
+}
+
+/* Background image for larger screens in light mode */
+@media (min-width: 1024px) { /* Adjust breakpoint as needed */
+  .bg-light-mode-lg {
+    background-image: url('/wha-light.jpeg');
+  }
+}
+
+/* Common styling */
+.bg-cover {
+  background-size: cover;
+}
+
+.bg-center {
+  background-position: center;
+}
+
+.bg-no-repeat {
+  background-repeat: no-repeat;
+}
+
+
 /* Apply styles directly to the scrollable element */
 .scrollable {
   overflow-y: scroll; /* Enable vertical scrolling */

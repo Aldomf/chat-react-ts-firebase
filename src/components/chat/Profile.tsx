@@ -4,6 +4,7 @@ import { useAuth, useUser } from "reactfire";
 import { useChatStore } from "@/store/chat-store";
 import { useProfileStore } from "@/store/toggleProfile-store";
 import { IoMdClose } from "react-icons/io";
+import { ModeToggle } from "../mode-toggle";
 
 function Profile() {
   const auth = useAuth();
@@ -17,7 +18,7 @@ function Profile() {
   };
 
   return (
-    <div className="relative md:flex md:flex-col md:items-center">
+    <div className="relative md:flex md:flex-col md:items-center bg-white dark:bg-[#020817]">
       <div className="relative overflow-hidden w-full h-44">
         <IoMdClose
           className="absolute top-2 left-2 text-white cursor-pointer w-8 h-8 lg:hidden"
@@ -49,6 +50,9 @@ function Profile() {
         >
           Log out
         </Button>
+      </div>
+      <div className="flex justify-center w-full mt-5">
+      <ModeToggle />
       </div>
     </div>
   );

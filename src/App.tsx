@@ -8,6 +8,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import RootLayout from "./layouts/root-layout";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function App() {
   const app = useFirebaseApp();
@@ -19,7 +20,9 @@ function App() {
     <FirestoreProvider sdk={db}>
       <AuthProvider sdk={auth}>
         <StorageProvider sdk={storage}>
-          <RootLayout />
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <RootLayout />
+          </ThemeProvider>
         </StorageProvider>
       </AuthProvider>
     </FirestoreProvider>

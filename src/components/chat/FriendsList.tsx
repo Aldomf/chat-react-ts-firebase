@@ -159,8 +159,8 @@ function FriendsList() {
       {friends.map((f, index) => (
         <Card
           key={index}
-          className={`flex py-2 rounded-none hover:bg-[#F1F5F9] cursor-pointer shadow-none pr-2 ${
-            f.unreadCount > 0 ? "bg-[#F1F5F9]" : ""
+          className={`flex py-2 rounded-none hover:bg-[#F1F5F9] dark:hover:bg-[#1a2330] cursor-pointer shadow-none pr-2 ${
+            f.unreadCount > 0 ? "bg-[#F1F5F9] dark:bg-[#1a2330]" : ""
           }`}
           onClick={() => setFriend(f)}
         >

@@ -12,7 +12,7 @@ function ChatLayout() {
 
       {/* Profile sidebar on mobile screens */}
       <div
-        className={`fixed top-0 right-0 w-full md:w-1/2 lg:w-full h-full bg-white transition-transform duration-300 lg:transform-none lg:relative z-20 ${
+        className={`fixed top-0 right-0 w-full md:w-1/2 lg:w-full h-full bg-white dark:bg-[#020817] transition-transform duration-300 lg:transform-none lg:relative z-20 ${
           isProfileVisible ? "transform translate-x-0" : "transform translate-x-full"
         }`}
       >

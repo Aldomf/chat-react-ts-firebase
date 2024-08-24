@@ -178,10 +178,10 @@ function AudioMessage({
       )}
       <div
         className={cn(
-          "flex items-center space-x-2 bg-white rounded-lg p-2 w-[70%] md:w-[50%] lg:w-[40%] xl:w-[30%]",
+          "flex items-center space-x-2 bg-white dark:bg-gray-800 dark:text-white rounded-lg p-2 w-[70%] md:w-[50%] lg:w-[40%] xl:w-[30%]",
           {
-            "bg-[#2563EB]": isCurrentUser,
-            "text-white": isCurrentUser,
+            "bg-[#2563EB] dark:bg-[#2563EB]": isCurrentUser,
+            "text-white dark:text-white": isCurrentUser,
           }
         )}
       >

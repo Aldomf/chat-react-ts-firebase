@@ -29,7 +29,7 @@ import { IoSearchOutline } from "react-icons/io5";
 function SearchContact() {
   const auth = useAuth();
   const db = useFirestore();
-  
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -141,12 +141,11 @@ function SearchContact() {
                       {...field}
                       type="email"
                       placeholder="Search contact by email"
-                      className="rounded-3xl bg-[#E2E8F0] placeholder:text-[#A6A3B8] pl-4 pr-12"
+                      className="rounded-3xl bg-[#E2E8F0] placeholder:text-[#A6A3B8] dark:text-gray-400 pl-4 pr-12 dark:bg-gray-800"
                     />
                     <Button
                       type="submit"
-                      className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-r-full w-10
-              hover:bg-white hover:border hover:border-gray-400"
+                      className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-r-full w-10 dark:bg-gray-800"
                     >
                       <IoSearchOutline className="text-[#A6A3B8]" />
                     </Button>
